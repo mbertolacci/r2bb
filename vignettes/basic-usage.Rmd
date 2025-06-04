@@ -1,0 +1,195 @@
+---
+title: "Basic Usage of r2bb"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Basic Usage of r2bb}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(r2bb)
+```
+
+# Introduction
+
+The `r2bb` package provides tools to construct Blackboard LMS questions, pools, and tests. These can be converted to the XML format that Blackboard expects for import.
+
+It can be thought of as a Blackboard-specific version of the famous [exams R package](https://www.r-exams.org/).
+
+Because questions and other items can be dynamically generated, you can use R code to generate the questions and answers, randomise the data, and so on.
+
+One of the features of the package is to introduce a new format called RYaml, which is a YAML file with embedded R code. This is really just an Rmarkdown file in YAML format. This is useful for generating questions and answers dynamically. You can read more about that later in the [RYaml section](#ryaml).
+
+# Simple example
+
+Here we show how you can:
+
+- Load a question from a YAML file
+- Put it in a question pool and output it as a zip file for import into Blackboard
+- Create a test that includes the question pool and another question
+- Output the test as a zip file for import into Blackboard
+
+## Loading a question
+
+The package contains a YAML file for a question about the capital of France, which looks like this:
+
+```yaml
+`r paste(readLines(system.file('examples', 'france-question.yaml', package = 'r2bb')), collapse = '\n')`
+```
+
+This is a simple multiple choice question with four answers, one of which is correct. Other question types are possible and are documented elsewhere. The question can be read in and printed in Markdown format as follows:
+
+```{r}
+france_yaml <- system.file('examples', 'france-question.yaml', package = 'r2bb')
+france_question <- read_question(france_yaml)
+print(france_question)
+```
+
+## Creating a pool
+
+You can put the question in a pool as follows:
+
+```{r}
+capitals_pool <- normalize_pool(list(
+  title = 'Capitals',
+  description = 'This pool contains questions about the capitals of countries.',
+  questions = list(france_question)
+))
+```
+
+You can print this too but we won't to save space. To export this pool as a zip file for import into Blackboard:
+
+```{r}
+to_bbxml_package(capitals_pool, 'capitals-pool.zip')
+```
+
+The file `capitals-pool.zip` can now be imported into Blackboard.
+
+## Creating a test
+
+You can create a test that includes the question pool and another question as follows:
+
+```{r}
+capitals_test <- normalize_test(list(
+  title = 'Capitals Test',
+  description = 'This test contains questions about the capitals of countries.',
+  instructions = 'Try to do well!',
+  contents = list(
+    list(type = 'random_block', pool = capitals_pool, questions_to_display = 1, points_per_question = 4),
+    list(type = 'question', points = 1, question = france_question)
+  )
+))
+```
+
+This can be exported as a zip file for import into Blackboard as follows:
+
+```{r}
+to_bbxml_package(capitals_test, 'capitals-test.zip')
+```
+
+The file `capitals-test.zip` can now be imported into Blackboard.
+
+# More complex examples
+
+As you can see above, questions can be read in from external files. They can also be created directly in R code. In general there are three approaches:
+
+1. Direct R code construction
+2. YAML file input
+3. RYaml file input (YAML with embedded R code)
+
+Each approach has its advantages depending on your workflow and needs; we go through examples.
+
+## Direct R Code Construction
+
+The most straightforward approach is to construct questions and tests directly in R code. This is useful when you want to programmatically generate questions or when you're comfortable working directly in R.
+
+Here's how to create a simple multiple choice question:
+
+```{r}
+france_question <- normalize_question(list(
+  title = 'Capital of France',
+  question_type = 'multiple_choice',
+  question_text = 'What is the capital of France?',
+  max_score = 1.0,
+  feedback = 'Paris is the capital of France.',
+  random_order = FALSE,
+  answers = list(
+    list(text = 'Paris', correct = TRUE),
+    list(text = 'London', correct = FALSE),
+    list(text = 'Berlin', correct = FALSE),
+    list(text = 'Madrid', correct = FALSE)
+  )
+))
+
+# View the question in markdown format
+print(france_question)
+```
+
+You can see examples of creating a pool and a test earlier.
+
+## YAML File Input
+
+For more maintainable and readable question definitions, you can use YAML files. This approach is particularly useful when you have many questions to manage.
+
+You can see an example above for reading a question from a YAML file directly. 
+
+You can also define multiple questions in a single YAML file by separating them with `---`. Here's an example:
+
+```yaml
+`r paste(readLines(system.file('examples', 'capitals-question.yaml', package = 'r2bb')), collapse = '\n')`
+```
+
+To read multiple questions from this file:
+
+```{r}
+capitals_yaml <- system.file('examples', 'capitals-question.yaml', package = 'r2bb')
+capitals_questions <- read_question(capitals_yaml, allow_multiple = TRUE)
+print(capitals_questions)
+```
+
+## RYaml File Input  {#ryaml}
+
+RYaml files combine the power of R with the readability of YAML. They allow you to embed R code blocks within your YAML files, which is particularly useful for generating dynamic content.
+
+### Basic RYaml Example
+
+Here's an example of a RYaml file for a t-test question:
+
+````yaml
+`r paste(readLines(system.file('examples', 't-test.Ryaml', package = 'r2bb')), collapse = '\n')`
+````
+
+Notice the use of the R code block `<<data>>` to embed the data in the question; this is a nice feature of Rmarkdown that RYaml inherits.
+
+To use this RYaml file:
+
+```{r}
+# Read a question from RYaml
+t_test_ryaml <- system.file('examples', 't-test.Ryaml', package = 'r2bb')
+t_test_question <- read_question(t_test_ryaml)
+print(t_test_question)
+```
+
+### Dynamic RYaml Example
+
+You can also use R code to generate parts of your YAML. The following code is identical in its output to the previous example, but uses R code to create the answers as a list before outputting them as YAML:
+
+````yaml
+`r paste(readLines(system.file('examples', 't-test-alt.Ryaml', package = 'r2bb')), collapse = '\n')`
+````
+
+Notice how the code block with `render = yaml_print` is indented to match the surrounding YAML. What this does is formats any R objects that are printed in the code block as YAML, and Rmarkdown ensures they have the same indentation of the block. Thus, this renders to valid YAML. You can also output YAML yourself as a string in the code block if you want to.
+
+### Multiple questions in a single file
+
+Just as for yaml, if you separate questions with `---`, you can read them in as a list of questions. This can be useful if you want slight variations on the same question using the same R code.

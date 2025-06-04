@@ -1,0 +1,15 @@
+title: Capital of France
+question_type: multiple_choice
+question_text: What is the capital of France?
+max_score: 1.0
+feedback: Paris is the capital of France.
+random_order: false
+answers:
+  - text: Paris
+    correct: true
+  - text: London
+    correct: false
+  - text: Berlin
+    correct: false
+  - text: Madrid
+    correct: false

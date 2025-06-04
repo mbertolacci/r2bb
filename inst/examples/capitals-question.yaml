@@ -1,0 +1,31 @@
+title: Capital of France
+question_type: multiple_choice
+question_text: What is the capital of France?
+max_score: 1.0
+feedback: Paris is the capital of France.
+random_order: false
+answers:
+  - text: Paris
+    correct: true
+  - text: London
+    correct: false
+  - text: Berlin
+    correct: false
+  - text: Madrid
+    correct: false
+---
+title: Capital of Germany
+question_type: multiple_choice
+question_text: What is the capital of Germany?
+max_score: 1.0
+feedback: Berlin is the capital of Germany.
+random_order: false
+answers:
+  - text: Berlin
+    correct: true
+  - text: Munich
+    correct: false
+  - text: Hamburg
+    correct: false
+  - text: Frankfurt
+    correct: false

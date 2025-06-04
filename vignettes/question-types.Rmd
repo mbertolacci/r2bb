@@ -1,0 +1,704 @@
+---
+title: "Question Types Reference"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Question Types Reference}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(r2bb)
+```
+
+# Introduction
+
+This vignette provides a comprehensive reference for all question types supported by r2bb.
+
+# Handling of rich text fields
+
+Rich text fields can be in Markdown or plain text. On export, you can choose whether to convert Markdown to HTML or leave it unchanged.
+
+# Common Fields
+
+All question types have these required fields:
+
+- **`title`** (string): The question title/name
+- **`question_type`** (string): One of the supported question types
+- **`question_text`** (string, rich text): The main question content
+
+The following fields are optional:
+
+- **`max_score`** (numeric): Maximum points for the question (default: 1)
+- **`partial_credit`** (logical): Whether to allow partial credit (default: false)
+- **`feedback`** (string, rich text): Feedback shown to students
+- **`positive_feedback`** (string, rich text): Feedback for correct answers (overrides `feedback`)
+- **`negative_feedback`** (string, rich text): Feedback for incorrect answers (overrides `feedback`)
+- **`instructor_notes`** (string): Private notes for instructors
+
+## Schema and example
+
+Here is a YAML schema for all question types:
+
+```yaml
+title: string                    # Required
+question_type: string           # Required: multiple_choice, multiple_answer, etc.
+question_text: string           # Required: supports Markdown
+max_score: number              # Optional: default 1
+partial_credit: boolean        # Optional: default false
+feedback: string               # Optional: general feedback
+positive_feedback: string      # Optional: overrides feedback for correct answers
+negative_feedback: string      # Optional: overrides feedback for incorrect answers
+instructor_notes: string       # Optional: private instructor notes
+```
+
+Here is an example of creating a question directly in R with all common fields:
+
+```{r, eval=FALSE}
+# Common structure for all question types
+question <- normalize_question(list(
+  title = "Example Question",
+  question_type = "multiple_choice",  # varies by type
+  question_text = "What is the answer?",
+  max_score = 2,
+  partial_credit = FALSE,
+  feedback = "General feedback here",
+  instructor_notes = "Private notes for instructors"
+  # ... type-specific fields
+))
+```
+
+# Multiple Choice Questions
+
+Multiple choice questions allow students to select **one** correct answer from multiple options.
+
+## Fields
+
+- **`answers`** (list): List of answer choices
+  - **`text`** (string, rich text): The answer text
+  - **`correct`** (logical): Whether this is the correct answer
+  - **`partial_credit_percentage`** (numeric, optional): Percentage credit for this answer (0-100)
+- **`random_order`** (logical): Whether to randomize answer order (default: false)
+- **`answer_numbering`** (string): Numbering style: "none", "letters", "numbers" (default: "none")
+- **`answer_orientation`** (string): Layout: "vertical" or "horizontal" (default: "vertical")
+
+Notes:
+
+- Exactly one answer must have `correct: true`
+- Correct answer must have `partial_credit_percentage: 100` (or omit the field)
+- All `partial_credit_percentage` values must be between 0 and 100
+
+## Schema and example
+
+Here is the YAML schema for multiple choice questions:
+
+```yaml
+# Common fields (see above) plus:
+question_type: multiple_choice
+answers:
+  - text: string               # Required
+    correct: boolean           # Required
+    partial_credit_percentage: number  # Optional: 0-100
+random_order: boolean          # Optional: default false
+answer_numbering: string       # Optional: "none", "letters", "numbers"
+answer_orientation: string     # Optional: "vertical", "horizontal"
+```
+
+Here is an example of a multiple choice question:
+
+```yaml
+title: Capital of France
+question_type: multiple_choice
+question_text: What is the capital of France?
+max_score: 1.0
+feedback: Paris is the capital of France.
+random_order: false
+answer_numbering: letters
+answer_orientation: vertical
+answers:
+  - text: Paris
+    correct: true
+  - text: London
+    correct: false
+    partial_credit_percentage: 25  # Some credit for a major European capital
+  - text: Berlin
+    correct: false
+  - text: Madrid
+    correct: false
+```
+
+Here is the same question directly in R:
+
+```{r, eval=FALSE}
+# Create multiple choice question
+france_question <- normalize_question(list(
+  title = "Capital of France",
+  question_type = "multiple_choice",
+  question_text = "What is the capital of France?",
+  max_score = 1.0,
+  feedback = "Paris is the capital of France.",
+  random_order = FALSE,
+  answer_numbering = "letters",
+  answer_orientation = "vertical",
+  answers = list(
+    list(text = "Paris", correct = TRUE),
+    list(text = "London", correct = FALSE, partial_credit_percentage = 25),
+    list(text = "Berlin", correct = FALSE),
+    list(text = "Madrid", correct = FALSE)
+  )
+))
+```
+
+# Multiple Answer Questions
+
+Multiple answer questions allow students to select **multiple** correct answers from a list of options.
+
+## Fields
+
+- **`answers`** (list): List of answer choices
+  - **`text`** (string, rich text): The answer text
+  - **`correct`** (logical): Whether this is a correct answer
+  - **`partial_credit_percentage`** (numeric, optional): Percentage credit for this answer (0-100)
+- **`random_order`** (logical): Whether to randomize answer order (default: false)
+- **`answer_numbering`** (string): Numbering style: "none", "letters", "numbers" (default: "none")
+- **`answer_orientation`** (string): Layout: "vertical" or "horizontal" (default: "vertical")
+
+Notes:
+
+- At least one answer must have `correct: true`
+- When `partial_credit` is true, the sum of `partial_credit_percentage` for all correct answers must equal 100
+- All `partial_credit_percentage` values must be between 0 and 100
+- Incorrect answers can have partial credit (e.g., for selecting a close but wrong answer)
+
+## Schema and example
+
+Here is the YAML schema for multiple answer questions:
+
+```yaml
+# Common fields (see above) plus:
+question_type: multiple_answer
+answers:
+  - text: string               # Required
+    correct: boolean           # Required
+    partial_credit_percentage: number  # Optional: 0-100
+random_order: boolean          # Optional: default false
+answer_numbering: string       # Optional: "none", "letters", "numbers"
+answer_orientation: string     # Optional: "vertical", "horizontal"
+```
+
+Here is an example of a multiple answer question:
+
+```yaml
+title: European Capitals
+question_type: multiple_answer
+partial_credit: true
+max_score: 3
+question_text: |
+  Which of the following cities are capitals of European Union member states?
+
+  Select all that apply.
+answers:
+  - text: Paris
+    correct: true
+  - text: London
+    correct: false
+    partial_credit_percentage: 25  # Some credit for a major European capital
+  - text: Berlin
+    correct: true
+  - text: Madrid
+    correct: true
+  - text: Oslo
+    correct: false
+answer_numbering: letters
+answer_orientation: vertical
+random_order: true
+feedback: |
+  Paris (France), Berlin (Germany), and Madrid (Spain) are all EU member state capitals.
+  London is the capital of the UK, which is no longer an EU member.
+  Oslo is the capital of Norway, which is not an EU member.
+instructor_notes: |
+  This question tests knowledge of EU membership and capitals.
+  Partial credit is given for London as it was previously an EU capital.
+```
+
+Here is the same question directly in R:
+
+```{r, eval=FALSE}
+# Create multiple answer question
+eu_capitals_question <- normalize_question(list(
+  title = "European Capitals",
+  question_type = "multiple_answer",
+  partial_credit = TRUE,
+  max_score = 3,
+  question_text = "Which of the following cities are capitals of European Union member states?\n\nSelect all that apply.",
+  answers = list(
+    list(text = "Paris", correct = TRUE),
+    list(text = "London", correct = FALSE, partial_credit_percentage = 25),
+    list(text = "Berlin", correct = TRUE),
+    list(text = "Madrid", correct = TRUE),
+    list(text = "Oslo", correct = FALSE)
+  ),
+  answer_numbering = "letters",
+  answer_orientation = "vertical",
+  random_order = TRUE,
+  feedback = "Paris (France), Berlin (Germany), and Madrid (Spain) are all EU member state capitals.\nLondon is the capital of the UK, which is no longer an EU member.\nOslo is the capital of Norway, which is not an EU member.",
+  instructor_notes = "This question tests knowledge of EU membership and capitals.\nPartial credit is given for London as it was previously an EU capital."
+))
+```
+
+# Single Blank Questions
+
+Single blank questions require students to fill in one blank with a specific answer. The answer can be matched exactly, by containing the text, or using a pattern.
+
+## Fields
+
+- **`answers`** (list or string): List of acceptable answers or a single answer string
+  - **`text`** (string): The answer text
+  - **`type`** (string): How to match the answer: "exact", "contains", or "pattern" (default: "exact")
+  - **`case_sensitive`** (logical): Whether the match is case sensitive (default: false)
+
+Notes:
+
+- If a string is provided instead of a list, it defaults to an exact match that is not case sensitive
+- Multiple answers can be provided to accept different correct responses
+- Pattern matching uses regular expressions
+
+## Schema and example
+
+Here is the YAML schema for single blank questions:
+
+```yaml
+# Common fields (see above) plus:
+question_type: single_blank
+answers:
+  - text: string               # Required
+    type: string              # Optional: "exact", "contains", "pattern", default "exact"
+    case_sensitive: boolean   # Optional: default false
+```
+
+Here is an example of a single blank question:
+
+```yaml
+title: Statistical Terminology
+question_type: single_blank
+max_score: 1
+question_text: |
+  In a regression model, the difference between the observed value and the predicted value is called a(n) ________.
+answers:
+  - residual
+  - text: error term
+    type: contains
+    case_sensitive: false
+feedback: |
+  A residual is the difference between an observed value and its predicted value in a regression model.
+  The error term is the theoretical difference between the true value and the predicted value.
+instructor_notes: |
+  This question tests understanding of regression terminology.
+  We accept both "residual" and "error term" as correct answers, though "residual" is more precise.
+```
+
+Here is the same question directly in R:
+
+```{r, eval=FALSE}
+# Create single blank question
+residual_question <- normalize_question(list(
+  title = "Statistical Terminology",
+  question_type = "single_blank",
+  max_score = 1,
+  question_text = "In a regression model, the difference between the observed value and the predicted value is called a(n) ________.",
+  answers = list(
+    "residual",
+    list(text = "error term", type = "contains", case_sensitive = FALSE)
+  ),
+  feedback = "A residual is the difference between an observed value and its predicted value in a regression model.\nThe error term (ε) is the theoretical difference between the true value and the predicted value.",
+  instructor_notes = "This question tests understanding of regression terminology.\nWe accept both \"residual\" and \"error term\" as correct answers, though \"residual\" is more precise."
+))
+```
+
+# Multiple Blanks Questions
+
+Multiple blanks questions require students to fill in multiple blanks in a question. Each blank is identified by a name (like [A], [B], etc.) and can have its own set of acceptable answers.
+
+## Fields
+
+- **`answers`** (list): Named list of answer sets, where each name corresponds to a blank identifier
+  - Each answer set can be a string (for simple exact match) or a list of answer objects
+  - Each answer object has:
+    - **`text`** (string): The answer text
+    - **`type`** (string): How to match the answer: "exact", "contains", or "pattern" (default: "exact")
+    - **`case_sensitive`** (logical): Whether the match is case sensitive (default: false)
+
+Notes:
+
+- Blanks in the question text are marked with identifiers like [A], [B], etc.
+- Each blank can have multiple acceptable answers
+- Simple string answers default to exact match, case insensitive
+- Pattern matching uses regular expressions
+
+## Schema and example
+
+Here is the YAML schema for multiple blanks questions:
+
+```yaml
+# Common fields (see above) plus:
+question_type: multiple_blanks
+answers:
+  A:                           # Blank identifier
+    - text: string            # Required
+      type: string            # Optional: "exact", "contains", "pattern", default "exact"
+      case_sensitive: boolean # Optional: default false
+  B:                           # Another blank identifier
+    - string                  # Simple string answer (exact match, case insensitive)
+```
+
+Here is an example of a multiple blanks question:
+
+```yaml
+title: World Capitals
+question_type: multiple_blanks
+partial_credit: true
+max_score: 4
+question_text: |
+  Fill in the blanks:
+
+  - The capital of Nigeria is [A]
+  - The capital of Brazil is [B]
+answers:
+  A:
+    - Abuja
+    - 
+      type: contains
+      text: abuja
+      case_sensitive: false
+    - 
+      type: pattern
+      text: Abuja
+      case_sensitive: true
+  B: Brasilia
+feedback: |
+  Abuja is the capital of Nigeria, and Brasilia is the capital of Brazil.
+  Both cities were purpose-built as capital cities.
+instructor_notes: |
+  This question tests knowledge of world capitals.
+  We accept variations of "Abuja" to account for different spellings.
+```
+
+Here is the same question directly in R:
+
+```{r, eval=FALSE}
+# Create multiple blanks question
+capitals_question <- normalize_question(list(
+  title = "World Capitals",
+  question_type = "multiple_blanks",
+  partial_credit = TRUE,
+  max_score = 4,
+  question_text = "Fill in the blanks:\n\n- The capital of Nigeria is [A]\n- The capital of Brazil is [B]",
+  answers = list(
+    A = list(
+      "Abuja",
+      list(type = "contains", text = "abuja", case_sensitive = FALSE),
+      list(type = "pattern", text = "Abuja", case_sensitive = TRUE)
+    ),
+    B = "Brasilia"
+  ),
+  feedback = "Abuja is the capital of Nigeria, and Brasilia is the capital of Brazil.\nBoth cities were purpose-built as capital cities.",
+  instructor_notes = "This question tests knowledge of world capitals.\nWe accept variations of \"Abuja\" to account for different spellings."
+))
+```
+
+# Numeric Questions
+
+Numeric questions require students to enter a number as their answer. The answer can be matched exactly or within a specified tolerance.
+
+## Fields
+
+- **`answer`** (numeric): The correct numeric answer
+- **`tolerance`** (numeric): The acceptable range around the answer (default: 0)
+
+Notes:
+
+- The answer must be a number
+- The tolerance creates a range of acceptable answers: [answer - tolerance, answer + tolerance]
+- If no tolerance is specified, the answer must match exactly
+
+## Schema and example
+
+Here is the YAML schema for numeric questions:
+
+```yaml
+# Common fields (see above) plus:
+question_type: numeric
+answer: number              # Required
+tolerance: number          # Optional: default 0
+```
+
+Here is an example of a numeric question:
+
+```yaml
+title: Population Growth
+question_type: numeric
+max_score: 1
+question_text: |
+  A population grows from 1000 to 1500 over 5 years.
+  What is the annual growth rate (as a percentage)?
+  Round your answer to 2 decimal places.
+answer: 8.45
+tolerance: 0.01
+feedback: |
+  The annual growth rate is 8.45%.
+  This is calculated as: ((1500/1000)^(1/5) - 1) * 100
+instructor_notes: |
+  This question tests understanding of compound growth rates.
+  The tolerance of 0.01 allows for rounding differences.
+```
+
+Here is the same question directly in R:
+
+```{r, eval=FALSE}
+# Create numeric question
+growth_question <- normalize_question(list(
+  title = "Population Growth",
+  question_type = "numeric",
+  max_score = 1,
+  question_text = "A population grows from 1000 to 1500 over 5 years.\nWhat is the annual growth rate (as a percentage)?\nRound your answer to 2 decimal places.",
+  answer = 8.45,
+  tolerance = 0.01,
+  feedback = "The annual growth rate is 8.45%.\nThis is calculated as: ((1500/1000)^(1/5) - 1) * 100",
+  instructor_notes = "This question tests understanding of compound growth rates.\nThe tolerance of 0.01 allows for rounding differences."
+))
+```
+
+# File Upload Questions
+
+File upload questions allow students to submit a file as their answer. This is useful for assignments that require students to upload documents, code, or other files.
+
+## Fields
+
+No additional fields beyond the common fields are required.
+
+## Schema and example
+
+Here is the YAML schema for file upload questions:
+
+```yaml
+# Common fields (see above) plus:
+question_type: file_upload
+```
+
+Here is an example of a file upload question:
+
+```yaml
+title: R Script Submission
+question_type: file_upload
+max_score: 10
+question_text: |
+  Write an R script that:
+  1. Reads the data from 'data.csv'
+  2. Creates a scatter plot of x vs y
+  3. Adds a regression line
+  4. Saves the plot as 'plot.png'
+  
+  Upload your R script file.
+feedback: |
+  Your script should use read.csv() for reading data,
+  plot() for the scatter plot, and abline() for the regression line.
+instructor_notes: |
+  This question tests basic R programming skills.
+  Look for proper use of functions and file handling.
+```
+
+Here is the same question directly in R:
+
+```{r, eval=FALSE}
+# Create file upload question
+r_script_question <- normalize_question(list(
+  title = "R Script Submission",
+  question_type = "file_upload",
+  max_score = 10,
+  question_text = "Write an R script that:\n1. Reads the data from 'data.csv'\n2. Creates a scatter plot of x vs y\n3. Adds a regression line\n4. Saves the plot as 'plot.png'\n\nUpload your R script file.",
+  feedback = "Your script should use read.csv() for reading data,\nplot() for the scatter plot, and abline() for the regression line.",
+  instructor_notes = "This question tests basic R programming skills.\nLook for proper use of functions and file handling."
+))
+```
+
+# Short Answer Questions
+
+Short answer questions allow students to enter free-form text responses. The answer field provides a suggested answer for instructors, but students' responses are not automatically graded.
+
+## Fields
+
+- **`answer`** (string, rich text): A suggested answer for instructors (not used for automatic grading)
+- **`answer_rows`** (integer): Height of the text box in rows (default: 3)
+
+Notes:
+
+- The answer field is only a suggestion for instructors when grading
+- The answer_rows parameter controls the size of the text box shown to students
+- These questions require manual grading by instructors
+
+## Schema and example
+
+Here is the YAML schema for short answer questions:
+
+```yaml
+# Common fields (see above) plus:
+question_type: short_answer
+answer: string              # Required: suggested answer for instructors
+answer_rows: integer        # Optional: height of text box, default 3
+```
+
+Here is an example of a short answer question:
+
+```yaml
+title: Statistical Concept
+question_type: short_answer
+max_score: 2
+question_text: |
+  Explain the difference between a Type I and Type II error in hypothesis testing.
+  Give an example of each.
+answer: |
+  A Type I error occurs when we reject a true null hypothesis (false positive).
+  Example: Concluding a new drug is effective when it isn't.
+  
+  A Type II error occurs when we fail to reject a false null hypothesis (false negative).
+  Example: Failing to detect that a new drug is effective when it is.
+answer_rows: 6
+feedback: |
+  Type I errors are false positives - rejecting the null when we shouldn't.
+  Type II errors are false negatives - failing to reject the null when we should.
+instructor_notes: |
+  Look for clear explanations and relevant examples.
+  Students should understand both the statistical definition and practical implications.
+```
+
+Here is the same question directly in R:
+
+```{r, eval=FALSE}
+# Create short answer question
+error_types_question <- normalize_question(list(
+  title = "Statistical Concept",
+  question_type = "short_answer",
+  max_score = 2,
+  question_text = "Explain the difference between a Type I and Type II error in hypothesis testing.\nGive an example of each.",
+  answer = "A Type I error occurs when we reject a true null hypothesis (false positive).\nExample: Concluding a new drug is effective when it isn't.\n\nA Type II error occurs when we fail to reject a false null hypothesis (false negative).\nExample: Failing to detect that a new drug is effective when it is.",
+  answer_rows = 6,
+  feedback = "Type I errors are false positives - rejecting the null when we shouldn't.\nType II errors are false negatives - failing to reject the null when we should.",
+  instructor_notes = "Look for clear explanations and relevant examples.\nStudents should understand both the statistical definition and practical implications."
+))
+```
+
+# Matching Questions
+
+Matching questions require students to match items from one list to items in another list. Each question is matched to exactly one answer, and partial credit can be awarded for correct matches.
+
+## Fields
+
+- **`questions`** (list): List of questions to be matched
+  - **`text`** (string, rich text): The question text
+  - **`answer_index`** (integer): Index of the correct answer (1-based)
+  - **`partial_credit_percentage`** (numeric, optional): Percentage credit for this match (0-100)
+- **`answers`** (list of strings, rich text): List of possible answers
+- **`partial_credit`** (logical): Whether to allow partial credit (default: false)
+
+Notes:
+
+- Each question must have exactly one correct answer
+- The answer_index refers to the position in the answers list (starting from 1)
+- When partial_credit is true:
+  - If not specified, partial_credit_percentage is automatically calculated to sum to 100%
+  - The first n-1 questions get equal credit, and the last question gets the remainder
+  - All partial_credit_percentage values must be between 0 and 100
+  - The total of all partial_credit_percentage values must equal 100
+
+## Schema and example
+
+Here is the YAML schema for matching questions:
+
+```yaml
+# Common fields (see above) plus:
+question_type: matching
+questions:
+  - text: string               # Required
+    answer_index: integer      # Required: 1-based index into answers list
+    partial_credit_percentage: number  # Optional: 0-100
+answers:
+  - string                     # List of possible answers
+partial_credit: boolean        # Optional: default false
+```
+
+Here is an example of a matching question:
+
+```yaml
+title: World Capitals
+question_type: matching
+partial_credit: true
+max_score: 4
+question_text: |
+  Match each country to its capital city.
+questions:
+  - text: Nigeria
+    answer_index: 1
+  - text: Brazil
+    answer_index: 2
+  - text: Canada
+    answer_index: 3
+  - text: New Zealand
+    answer_index: 4
+answers:
+  - Abuja
+  - Brasilia
+  - Ottawa
+  - Wellington
+  - Canberra
+  - Sydney
+  - Auckland
+feedback: |
+  The correct matches are:
+  - Nigeria → Abuja
+  - Brazil → Brasilia
+  - Canada → Ottawa
+  - New Zealand → Wellington
+instructor_notes: |
+  This question tests knowledge of world capitals.
+  Partial credit is automatically distributed equally among the matches.
+```
+
+Here is the same question directly in R:
+
+```{r, eval=FALSE}
+# Create matching question
+capitals_matching <- normalize_question(list(
+  title = "World Capitals",
+  question_type = "matching",
+  partial_credit = TRUE,
+  max_score = 4,
+  question_text = "Match each country to its capital city.",
+  questions = list(
+    list(text = "Nigeria", answer_index = 1),
+    list(text = "Brazil", answer_index = 2),
+    list(text = "Canada", answer_index = 3),
+    list(text = "New Zealand", answer_index = 4)
+  ),
+  answers = list(
+    "Abuja",
+    "Brasilia",
+    "Ottawa",
+    "Wellington",
+    "Canberra",
+    "Sydney",
+    "Auckland"
+  ),
+  feedback = "The correct matches are:\n- Nigeria → Abuja\n- Brazil → Brasilia\n- Canada → Ottawa\n- New Zealand → Wellington",
+  instructor_notes = "This question tests knowledge of world capitals.\nPartial credit is automatically distributed equally among the matches."
+))
+```
+

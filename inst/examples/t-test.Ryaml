@@ -1,0 +1,36 @@
+```{r, data, echo = FALSE}
+x <- c(1, 5, 3, 4, 2)
+y <- c(0, 2, 4, 6, 8)
+```
+
+```{r, results, echo = FALSE}
+t_result <- t.test(x, y)
+t_stat_str <- sprintf('%.2f', t_result$statistic)
+t_stat_rejected <- t_result$p.value < 0.01
+
+t_result_single <- t.test(x)
+t_stat_single_str <- sprintf('%.2f', t_result_single$statistic)
+```
+
+title: T-test results
+question_type: multiple_choice
+question_text: |
+  Suppose you are given the following data:
+
+  ```{r}
+  <<data>>
+  ```
+
+  Conduct the t-test for the difference between the means of `x` and `y` at a significant level of $\alpha = 0.01$.
+
+  Select the correct answer.
+random_order: true
+answers:
+  - text: The t-statistic is `r t_stat_str` and the null hypothesis is not rejected
+    correct: `r t_stat_rejected`
+  - text: The t-statistic is `r t_stat_str` and the null hypothesis is rejected
+    correct: `r !t_stat_rejected`
+  - text: The t-statistic is `r t_stat_single_str` and the null hypothesis is not rejected
+    correct: false
+  - text: The t-statistic is `r t_stat_single_str` and the null hypothesis is rejected
+    correct: false

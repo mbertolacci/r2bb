@@ -1,0 +1,46 @@
+```{r, data, echo = FALSE}
+x <- c(1, 5, 3, 4, 2)
+y <- c(0, 2, 4, 6, 8)
+```
+
+```{r, results, echo = FALSE}
+t_result <- t.test(x, y)
+t_result_single <- t.test(x)
+
+answers <- list(
+  list(
+    text = sprintf('The t-statistic is %.2f and the null hypothesis is not rejected', t_result$statistic),
+    correct = t_result$p.value < 0.01
+  ),
+  list(
+    text = sprintf('The t-statistic is %.2f and the null hypothesis is rejected', t_result$statistic),
+    correct = t_result$p.value >= 0.01
+  ),
+  list(
+    text = sprintf('The t-statistic is %.2f and the null hypothesis is not rejected', t_result_single$statistic),
+    correct = FALSE
+  ),
+  list(
+    text = sprintf('The t-statistic is %.2f and the null hypothesis is rejected', t_result_single$statistic),
+    correct = FALSE
+  )
+)
+```
+
+title: T-test results
+question_type: multiple_choice
+question_text: |
+  Suppose you are given the following data:
+
+  ```{r}
+  <<data>>
+  ```
+
+  Conduct the t-test for the difference between the means of `x` and `y` at a significant level of $\alpha = 0.01$.
+
+  Select the correct answer.
+random_order: true
+answers:
+  ```{r, answers, render = yaml_print, echo = FALSE, results = 'asis'}
+  answers
+  ```
