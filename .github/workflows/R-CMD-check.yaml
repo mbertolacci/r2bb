@@ -35,9 +35,3 @@ jobs:
           needs: check
       - name: Check
         uses: r-lib/actions/check-r-package@v2
-        with:
-          args: >
-            --no-manual
-            --no-build-vignettes
-        env:
-          _R_CHECK_CRAN_INCOMING_: false
