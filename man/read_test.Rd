@@ -14,6 +14,9 @@ read_test(
 )
 }
 \arguments{
+\item{path}{The file to read the test from. Either a YAML file, or an
+RYaml file (in which case \code{\link[=render_ryaml]{render_ryaml()}} is used to render it).}
+
 \item{allow_multiple}{Whether to allow multiple tests in the file.
 These must be separate by the YAML document boundary, \verb{---}. If this
 is true, the return value is a list of tests; otherwise, the return
@@ -28,9 +31,6 @@ validation of the test.}
 \item{envir}{The environment to use for RYaml files.}
 
 \item{...}{Additional arguments to pass to \code{\link[=render_ryaml]{render_ryaml()}}, if it's needed.}
-
-\item{file}{The file to read the test from. Either a YAML file, or an
-RYaml file (in which case \code{\link[=render_ryaml]{render_ryaml()}} is used to render it).}
 }
 \value{
 A test or a list of tests

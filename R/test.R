@@ -3,7 +3,7 @@
 #' This function reads a test from a file. The file can be a YAML
 #' file, or an RYaml file (in which case [render_ryaml()] is used to render it).
 #'
-#' @param file The file to read the test from. Either a YAML file, or an
+#' @param path The file to read the test from. Either a YAML file, or an
 #' RYaml file (in which case [render_ryaml()] is used to render it).
 #' @param allow_multiple Whether to allow multiple tests in the file.
 #' These must be separate by the YAML document boundary, `---`. If this

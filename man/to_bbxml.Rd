@@ -19,5 +19,5 @@ This function converts an object to Blackboard XML format.
 It is a generic function that dispatches based on the class of the object.
 }
 \seealso{
-\code{\link[=to_bbxml.r2bb_exercise_matching]{to_bbxml.r2bb_exercise_matching()}}
+\code{\link[=to_bbxml.r2bb_question_matching]{to_bbxml.r2bb_question_matching()}}
 }

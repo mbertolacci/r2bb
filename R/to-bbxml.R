@@ -6,7 +6,7 @@
 #' @param x The object to convert to Blackboard XML
 #' @param ... Additional arguments passed to methods
 #' @return A character string containing the Blackboard XML
-#' @seealso [to_bbxml.r2bb_exercise_matching()]
+#' @seealso [to_bbxml.r2bb_question_matching()]
 #' @export
 to_bbxml <- function(x, ...) {
   UseMethod('to_bbxml')

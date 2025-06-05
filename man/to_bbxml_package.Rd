@@ -20,7 +20,13 @@ to_bbxml_package(
 
 \item{convert_rich_text}{Whether to convert rich text to HTML. By default,
 \code{md_to_html_pandoc_mark_for_conversion} is used, which converts Markdown to
-HTML using \href{https://pandoc.org/}{pandoc}. Can be FALSE to prevent any
+HTML using \href{https://pandoc.org/}{pandoc}. Can be FALSE to prevent any}
+
+\item{convert_rich_text_options}{Additional arguments to pass to the convert_rich_text function}
+
+\item{postprocess_xml}{The function applied to the generated XML}
+
+\item{postprocess_xml_options}{Additional arguments for postprocess_xml
 conversion.}
 }
 \value{

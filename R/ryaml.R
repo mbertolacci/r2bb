@@ -15,6 +15,7 @@
 #' base64 format
 #' @param clean_intermediates Whether to clean the intermediate files
 #' created by knitr
+#' @param envir The environment to use for evaluating R code
 #' @param ... Additional arguments to pass to \code{\link[knitr]{knit}}
 #' @return The output YAML file
 #' @export
