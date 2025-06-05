@@ -16,6 +16,7 @@ Imports:
     stringr,
     tools,
     uuid,
+    whisker,
     xml2,
     yaml
 Suggests:
