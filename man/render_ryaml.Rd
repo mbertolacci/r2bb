@@ -24,6 +24,8 @@ base64 format}
 \item{clean_intermediates}{Whether to clean the intermediate files
 created by knitr}
 
+\item{envir}{The environment to use for evaluating R code}
+
 \item{...}{Additional arguments to pass to \code{\link[knitr]{knit}}}
 }
 \value{

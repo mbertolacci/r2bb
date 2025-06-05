@@ -2,7 +2,7 @@
 % Please edit documentation in R/pool.R
 \name{read_pool}
 \alias{read_pool}
-\title{Read a question pool from a file}
+\title{Read a question pool from a path}
 \usage{
 read_pool(
   path,
@@ -14,6 +14,9 @@ read_pool(
 )
 }
 \arguments{
+\item{path}{The file to read the question pool from. Either a YAML file, or an
+RYaml file (in which case \code{\link[=render_ryaml]{render_ryaml()}} is used to render it).}
+
 \item{allow_multiple}{Whether to allow multiple pools in the file.
 These must be separate by the YAML document boundary, \verb{---}. If this
 is true, the return value is a list of pools; otherwise, the return
@@ -28,14 +31,11 @@ validation of the pool.}
 \item{envir}{The environment to use for RYaml files.}
 
 \item{...}{Additional arguments to pass to \code{\link[=render_ryaml]{render_ryaml()}}, if it's needed.}
-
-\item{file}{The file to read the question pool from. Either a YAML file, or an
-RYaml file (in which case \code{\link[=render_ryaml]{render_ryaml()}} is used to render it).}
 }
 \value{
 a question pool or a list of question pools
 }
 \description{
-This function reads a question pool from a file. The file can be a YAML
-file, or an RYaml file (in which case \code{\link[=render_ryaml]{render_ryaml()}} is used to render it).
+This function reads a question pool from a path. The path can be a YAML
+path, or an RYaml file (in which case \code{\link[=render_ryaml]{render_ryaml()}} is used to render it).
 }

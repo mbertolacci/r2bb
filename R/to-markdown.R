@@ -6,7 +6,7 @@
 #' @param x The object to convert to Markdown
 #' @param ... Additional arguments passed to methods
 #' @return A character string containing the Markdown
-#' @seealso [to_markdown.r2bb_exercise_matching()]
+#' @seealso [to_markdown.r2bb_question_matching()]
 #' @export
 to_markdown <- function(x, ...) {
   UseMethod('to_markdown')
