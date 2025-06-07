@@ -24,6 +24,13 @@ library(r2bb)
 
 The `r2bb` package provides tools to construct Blackboard LMS questions, pools, and tests. These can be converted to the XML format that Blackboard expects for import.
 
+The typical workflow is:
+
+1. Build many questions on your computer.
+2. Group them into [question pools](https://help.blackboard.com/Learn/Instructor/Tests_Pools_Surveys/Question_Pools) or [tests](https://help.blackboard.com/Learn/Instructor/Tests_Pools_Surveys/Tests).
+3. Export the pool or test as a Blackboard-ready ZIP file with `to_bbxml_package()`.
+4. Import that ZIP into Blackboard.
+
 It can be thought of as a Blackboard-specific version of the famous [exams R package](https://www.r-exams.org/).
 
 Because questions and other items can be dynamically generated, you can use R code to generate the questions and answers, randomise the data, and so on.
