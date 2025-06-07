@@ -1,0 +1,87 @@
+---
+title: "Using RYaml"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Using RYaml}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(r2bb)
+```
+
+# Introduction
+
+RYaml is a simple way to generate YAML files with embedded R code. It is a thin veneer over **rmarkdown**, so if you know how rmarkdown works you already know how RYaml works.
+
+# YAML refresher
+
+YAML is a plain ASCII format for nested key--value data. Nesting is represented by indentation so you can build up complex structures, not just a flat list of attributes. It's also the format used for the header of an rmarkdown file (the bit between the initial --- lines). See the [YAML web site](https://yaml.org/) for a thorough introduction.  You can create long text blocks using the | character:
+
+```yaml
+question_text: |
+  This is a long block.
+  You can write anything here, even *Markdown* if you want.
+```
+You nest values by indenting with spaces, for example:
+
+```yaml
+question:
+  text: "What is 2 + 2?"
+  answers:
+    - 3
+    - 4
+```
+
+Because YAML is just text, anything between the `|` and the next key is preserved exactly as written.
+
+# What does RYaml add?
+
+An RYaml file is simply a YAML file with rmarkdown code chunks. When you run `render_ryaml()`, those chunks are executed and the result is a plain YAML file. That means you can use R code to compute values, generate lists, or even print YAML directly.
+
+````yaml
+```{r, echo=FALSE}
+vec <- c("a", "b", "c")
+```
+answers:
+  ```{r, render = yaml_print, echo=FALSE, results='asis'}
+  vec
+  ```
+````
+
+Another common pattern is to compute a value inline:
+
+````yaml
+```{r, echo=FALSE}
+t_stat_rejected <- TRUE
+```
+correct: `r t_stat_rejected`
+
+question_text: |
+  The t-test result is:
+
+  ```{r, echo=FALSE}
+  t.test(mtcars$mpg, conf.level = 0.95)
+  ```
+````
+
+Because the final output is YAML text, you can feed the result into any function that expects YAML.
+
+# Why so flexible?
+
+Since RYaml ultimately renders to plain text, there are many ways you can use it. You might generate multiple questions in a loop, pull data from packages, or include figures encoded in base64. Everything that works in rmarkdown works here as well, just targeted at producing YAML.
+
+# Summary
+
+RYaml lets you keep your question templates readable while still using R for computation. Remember that under the hood it's rmarkdown producing a YAML file, so anything rmarkdown can do—tables, plots, inline expressions—you can do inside an RYaml document.
+
