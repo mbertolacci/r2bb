@@ -135,7 +135,8 @@ to_bbxml_package(test, "midterm-exam.zip")
 
 - [Basic Usage Vignette](https://mbertolacci.github.io/r2bb/articles/basic-usage.html) - Comprehensive usage guide
 - [Question Types Vignette](https://mbertolacci.github.io/r2bb/articles/question-types.html) - Examples of all question types
-- [Example Files](r2bb/inst/examples/) - Sample YAML and RYaml files
+- [RYaml Vignette](https://mbertolacci.github.io/r2bb/articles/ryaml.html) - Use RYaml for dynamic questions
+- [Example Files](https://github.com/mbertolacci/r2bb/tree/main/inst/examples) - Sample YAML and RYaml files
 
 ## Workflow
 
