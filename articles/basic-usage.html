@@ -73,6 +73,15 @@
 <p>The <code>r2bb</code> package provides tools to construct Blackboard
 LMS questions, pools, and tests. These can be converted to the XML
 format that Blackboard expects for import.</p>
+<p>The typical workflow is:</p>
+<ol style="list-style-type: decimal">
+<li>Build many questions on your computer.</li>
+<li>Group them into <a href="https://help.blackboard.com/Learn/Instructor/Tests_Pools_Surveys/Question_Pools" class="external-link">question
+pools</a> or <a href="https://help.blackboard.com/Learn/Instructor/Tests_Pools_Surveys/Tests" class="external-link">tests</a>.</li>
+<li>Export the pool or test as a Blackboard-ready ZIP file with
+<code><a href="../reference/to_bbxml_package.html">to_bbxml_package()</a></code>.</li>
+<li>Import that ZIP into Blackboard.</li>
+</ol>
 <p>It can be thought of as a Blackboard-specific version of the famous
 <a href="https://www.r-exams.org/" class="external-link">exams R package</a>.</p>
 <p>Because questions and other items can be dynamically generated, you
@@ -386,7 +395,7 @@ that RYaml inherits.</p>
 <span><span class="va">t_test_ryaml</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">'examples'</span>, <span class="st">'t-test.Ryaml'</span>, package <span class="op">=</span> <span class="st">'r2bb'</span><span class="op">)</span></span>
 <span><span class="va">t_test_question</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/read_question.html">read_question</a></span><span class="op">(</span><span class="va">t_test_ryaml</span><span class="op">)</span></span>
 <span><span class="co">#&gt; processing file: /home/runner/work/_temp/Library/r2bb/examples/t-test.Ryaml</span></span>
-<span><span class="co">#&gt; output file: /tmp/RtmpUquUXB/file1e626a1e2739</span></span>
+<span><span class="co">#&gt; output file: /tmp/RtmpOQXrir/file1e7742884525</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">t_test_question</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt; # T-test results</span></span>
 <span><span class="co">#&gt; </span></span>
