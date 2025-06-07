@@ -52,9 +52,9 @@ answers:
 ```
 
 ```r
-# Load and convert to Blackboard format
+# Load the question and print it in Markdown
 q <- read_question("france-question.yaml")
-to_bbxml_package(q, "france-question.zip")
+print(q)
 ```
 
 ### Dynamic RYaml Question
@@ -83,10 +83,10 @@ answers:
 ```
 
 ```r
-# Render RYaml to YAML, then convert
+# Render RYaml to YAML, then load and print
 render_ryaml("t-test.Ryaml", "t-test.yaml")
 q <- read_question("t-test.yaml")
-to_bbxml_package(q, "t-test.zip")
+print(q)
 ```
 
 ### Question Pools and Tests
@@ -133,15 +133,15 @@ to_bbxml_package(test, "midterm-exam.zip")
 
 ## Documentation
 
-- [Basic Usage Vignette](r2bb/vignettes/basic-usage.Rmd) - Comprehensive usage guide
-- [Question Types Vignette](r2bb/vignettes/question-types.Rmd) - Examples of all question types
+- [Basic Usage Vignette](https://mbertolacci.github.io/r2bb/articles/basic-usage.html) - Comprehensive usage guide
+- [Question Types Vignette](https://mbertolacci.github.io/r2bb/articles/question-types.html) - Examples of all question types
 - [Example Files](r2bb/inst/examples/) - Sample YAML and RYaml files
 
 ## Workflow
 
 1. **Create questions** using YAML files, RYaml files, or R code
 2. **Organize** questions into pools or tests as needed
-3. **Convert** to Blackboard format using `to_bbxml_package()`
+3. **Convert** pools or tests to Blackboard format using `to_bbxml_package()`
 4. **Import** the generated ZIP file into Blackboard
 
 ## Requirements
