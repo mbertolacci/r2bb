@@ -6,6 +6,9 @@ Construct Blackboard LMS tests, question pools, and individual questions with R.
 
 **r2bb** is an R package that enables you to create Blackboard Learning Management System assessments using R. It converts R-defined content into XML format that can be imported directly into Blackboard.
 
+In practice, you build questions on your local machine and organise them into pools or full tests. These pools or tests are then exported as Blackboard-compatible ZIP files for upload.
+For details on how Blackboard uses [question pools](https://help.blackboard.com/Learn/Instructor/Tests_Pools_Surveys/Question_Pools) and [tests](https://help.blackboard.com/Learn/Instructor/Tests_Pools_Surveys/Tests), see the Blackboard documentation.
+
 Think of it as a Blackboard-specific version of the [R exams package](https://www.r-exams.org/).
 
 ### Key Features
