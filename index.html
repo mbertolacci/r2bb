@@ -112,9 +112,9 @@
 <span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">text</span><span class="kw">:</span><span class="at"> Madrid</span></span>
 <span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="at">    </span><span class="fu">correct</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Load and convert to Blackboard format</span></span>
+<code class="sourceCode R"><span><span class="co"># Load the question and print it in Markdown</span></span>
 <span><span class="va">q</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/read_question.html">read_question</a></span><span class="op">(</span><span class="st">"france-question.yaml"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/to_bbxml_package.html">to_bbxml_package</a></span><span class="op">(</span><span class="va">q</span>, <span class="st">"france-question.zip"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">q</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="dynamic-ryaml-question">Dynamic RYaml Question<a class="anchor" aria-label="anchor" href="#dynamic-ryaml-question"></a>
@@ -129,10 +129,10 @@
 <p>title: T-test Analysis question_type: multiple_choice question_text: | Given the data x = <code>r paste(x, collapse=", ")</code> and y = <code>r paste(y, collapse=", ")</code>, what is the t-statistic for testing the difference in means? answers: - text: “<code>r t_stat</code>” correct: true - text: “1.23” correct: false</p>
 <pre><code>
 ```r
-# Render RYaml to YAML, then convert
+# Render RYaml to YAML, then load and print
 render_ryaml("t-test.Ryaml", "t-test.yaml")
 q &lt;- read_question("t-test.yaml")
-to_bbxml_package(q, "t-test.zip")</code></pre>
+print(q)</code></pre>
 </div>
 <div class="section level3">
 <h3 id="question-pools-and-tests">Question Pools and Tests<a class="anchor" aria-label="anchor" href="#question-pools-and-tests"></a>
@@ -194,9 +194,9 @@ to_bbxml_package(q, "t-test.zip")</code></pre>
 </h2>
 <ul>
 <li>
-<a href="r2bb/vignettes/basic-usage.Rmd">Basic Usage Vignette</a> - Comprehensive usage guide</li>
+<a href="https://mbertolacci.github.io/r2bb/articles/basic-usage.html">Basic Usage Vignette</a> - Comprehensive usage guide</li>
 <li>
-<a href="r2bb/vignettes/question-types.Rmd">Question Types Vignette</a> - Examples of all question types</li>
+<a href="https://mbertolacci.github.io/r2bb/articles/question-types.html">Question Types Vignette</a> - Examples of all question types</li>
 <li>
 <a href="r2bb/inst/examples/">Example Files</a> - Sample YAML and RYaml files</li>
 </ul>
@@ -210,7 +210,7 @@ to_bbxml_package(q, "t-test.zip")</code></pre>
 <li>
 <strong>Organize</strong> questions into pools or tests as needed</li>
 <li>
-<strong>Convert</strong> to Blackboard format using <code><a href="reference/to_bbxml_package.html">to_bbxml_package()</a></code>
+<strong>Convert</strong> pools or tests to Blackboard format using <code><a href="reference/to_bbxml_package.html">to_bbxml_package()</a></code>
 </li>
 <li>
 <strong>Import</strong> the generated ZIP file into Blackboard</li>
