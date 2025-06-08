@@ -68,7 +68,7 @@ print(q)
 
 Create questions with embedded R code for computed answers:
 
-```yaml
+````yaml
 # t-test.Ryaml
 ```{r, echo = FALSE}
 x <- c(1, 5, 3, 4, 2)
@@ -87,7 +87,7 @@ answers:
     correct: true
   - text: "1.23"
     correct: false
-```
+````
 
 ```r
 # Render RYaml to YAML, then load and print
