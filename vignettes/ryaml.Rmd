@@ -49,37 +49,142 @@ Because YAML is just text, anything between the `|` and the next key is preserve
 
 An RYaml file is simply a YAML file with rmarkdown code chunks. When you run `render_ryaml()`, those chunks are executed and the result is a plain YAML file. That means you can use R code to compute values, generate lists, or even print YAML directly.
 
+## Example 1: Inline computed values
+
+Here is an example of outputting a computed value to fill in a field in the YAML file:
+
 ````yaml
 ```{r, echo=FALSE}
-vec <- c("a", "b", "c")
+dog_status <- 'great!'
 ```
-answers:
+animal: dog
+how_good_are_dogs: `r dog_status`
+````
+
+When rendered to YAML, the output is:
+
+```yaml
+animal: dog
+how_good_are_dogs: great!
+```
+
+You can render this to a YAML file using `render_ryaml("dogs.Ryaml", "dogs.yaml")`. Alternatively, you can call `read_ryaml` to read the YAML file into an R object:
+
+```{r, eval = FALSE}
+read_ryaml("dogs.Ryaml")
+```
+
+The output is a list with two elements:
+
+```{r, echo = FALSE}
+print(list(
+  animal = 'dog',
+  how_good_are_dogs = 'great!'
+))
+```
+
+
+## Example 2: Computed YAML
+
+Another way to generate YAML is to use the `yaml_print` function to convert the output of a code block directly to YAML. Here is a simple example:
+
+````yaml
+```{r, echo=FALSE}
+# This block is echo = FALSE, so it does not appear in the rendered YAML
+animal_names <- c("dog", "cat", "bird")
+```
+animal_names:
   ```{r, render = yaml_print, echo=FALSE, results='asis'}
-  vec
+  # Ensure that the code block has the right indentation to create valid YAML. Any expression printed
+  # during this block will be rendered as YAML; to make valid YAML, you should only print one
+  # value
+  animal_names
   ```
 ````
 
-Another common pattern is to compute a value inline:
+The rendered YAML is:
+
+```yaml
+animal_names:
+  - dog
+  - cat
+  - bird
+```
+
+We can call `read_ryaml` to read the YAML file into an R object:
+
+```{r, eval = FALSE, echo = FALSE}
+read_ryaml("animals.Ryaml")
+```
+
+```{r, echo = FALSE}
+print(list(
+  animal_names = c('dog', 'cat', 'bird')
+))
+```
+
+This also works with more complex nested objects:
 
 ````yaml
 ```{r, echo=FALSE}
-t_stat_rejected <- TRUE
+animal_info <- list(
+  dog = list(
+    name = 'dog',
+    color = 'brown'
+  )
+)
 ```
-correct: `r t_stat_rejected`
-
-question_text: |
-  The t-test result is:
-
-  ```{r, echo=FALSE}
-  t.test(mtcars$mpg, conf.level = 0.95)
+animal_info:
+  ```{r, render = yaml_print, echo=FALSE, results='asis'}
+  animal_info
   ```
 ````
 
-Because the final output is YAML text, you can feed the result into any function that expects YAML.
+The rendered YAML is:
 
-# Why so flexible?
+```yaml
+animal_info:
+  dog:
+    name: dog
+    color: brown
+```
 
-Since RYaml ultimately renders to plain text, there are many ways you can use it. You might generate multiple questions in a loop, pull data from packages, or include figures encoded in base64. Everything that works in rmarkdown works here as well, just targeted at producing YAML.
+### Example 3: Markdown inside YAML
+
+YAML text fields can contain Markdown. This lets you use RMarkdown to include code and its results. Here is an example:
+
+````yaml
+question_text: |
+  Suppose the following code is run with the following output:
+
+  ```{r}
+  mean(1 : 10)
+  ```
+
+  What does this code do?
+````
+
+The rendered YAML is:
+
+````yaml
+question_text: |
+  Suppose the following code is run with the following output:
+
+  
+  ``` r
+  mean(1 : 10)
+  ```
+  
+  ```
+  ## [1] 5.5
+  ```
+
+  What does this code do?
+````
+
+# Embedded plots
+
+By default RYaml will embed plots in the YAML file as base64-encoded images. This is useful if you want to include plots in your question. This seems to "just work" with Blackboard LMS, but your mileage may vary.
 
 # Summary
 

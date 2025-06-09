@@ -26,44 +26,6 @@
   as.numeric(x)
 }
 
-.read_ryaml_or_yaml <- function(path, allow_multiple = FALSE, ...) {
-  file_extension <- tools::file_ext(path)
-  lines <- if (tolower(file_extension) %in% c('yaml', 'yml')) {
-    readLines(path)
-  } else if (tolower(file_extension) == 'ryaml') {
-    tmp_file <- tempfile()
-    on.exit(unlink(tmp_file))
-    render_ryaml(path, tmp_file, ...)
-    readLines(tmp_file)
-  } else  {
-    stop('Unknown file extension: ', file_extension, path)
-  }
-
-  .load_yaml_lines(lines, allow_multiple = allow_multiple)
-}
-
-.read_yaml <- function(path, ...) {
-  .load_yaml_lines(readLines(path), ...)
-}
-
-.load_yaml_lines <- function(lines, allow_multiple = FALSE, ...) {
-  boundary_lines <- c(0, which(lines == '---'), length(lines) + 1)
-  n_documents <- length(boundary_lines) - 1
-  output <- lapply(seq_len(n_documents), function(i) {
-    start_line <- boundary_lines[i] + 1L
-    end_line <- boundary_lines[i + 1] - 1L
-    yaml::yaml.load(paste0(lines[start_line : end_line], collapse = '\n'))
-  })
-  if (allow_multiple) {
-    output
-  } else {
-    if (length(output) != 1) {
-      stop('Multiple YAML documents found')
-    }
-    output[[1]]
-  }
-}
-
 .write_yaml_multiple <- function(x, path, ...) {
   yaml_parts <- sapply(x, yaml::as.yaml, ...)
   output <- paste0(yaml_parts, collapse = '---\n')

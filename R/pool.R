@@ -25,7 +25,7 @@ read_pool <- function(
   envir = parent.frame(),
   ...
 ) {
-  output <- .read_ryaml_or_yaml(path, allow_multiple = allow_multiple, envir = envir, ...)
+  output <- read_ryaml(path, allow_multiple = allow_multiple, envir = envir, ...)
   if (normalise) {
     if (allow_multiple) {
       lapply(output, normalize_pool)

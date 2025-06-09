@@ -10,6 +10,7 @@ render_ryaml(
   embed_images = TRUE,
   clean_intermediates = embed_images,
   envir = parent.frame(),
+  validate = TRUE,
   ...
 )
 }
@@ -26,10 +27,14 @@ created by knitr}
 
 \item{envir}{The environment to use for evaluating R code}
 
+\item{validate}{Whether to validate the output YAML file. This is done by
+calling \code{\link[yaml]{yaml.load}} on the output file; if an error is
+thrown, the function will stop with an error message.}
+
 \item{...}{Additional arguments to pass to \code{\link[knitr]{knit}}}
 }
 \value{
-The output YAML file
+The output of \code{\link[knitr]{knit}}
 }
 \description{
 This function renders an Ryaml file to a YAML file using the knitr package.
