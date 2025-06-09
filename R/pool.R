@@ -67,6 +67,8 @@ normalize_pool <- function(pool) {
 
 #' @title Convert a question pool to Blackboard XML
 #' @description This function converts a question pool to Blackboard XML format.
+#' This is mostly used as part of [to_bbxml_package()], but can be called
+#' directly if you want the XML for a single question.
 #' @param x The question pool to convert
 #' @param convert_rich_text Method to convert rich text to HTML. By default,
 #' `md_to_html_pandoc` is used, which converts Markdown to HTML using
