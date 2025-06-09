@@ -99,19 +99,20 @@ render_ryaml <- function(
 #'
 #' @param path The path to the Ryaml file
 #' @param allow_multiple Whether to allow multiple questions in the file
+#' @param quiet Whether to suppress output from \code{\link{render_ryaml}}
 #' @param ... Additional arguments to pass to \code{\link{render_ryaml}}
 #' @return If `allow_multiple` is `FALSE`, the return value is a single R
 #' object. If `allow_multiple` is `TRUE`, the return value is a list of R
 #' objects.
 #' @export
-read_ryaml <- function(path, allow_multiple = FALSE, ...) {
+read_ryaml <- function(path, allow_multiple = FALSE, quiet = TRUE, ...) {
   file_extension <- tools::file_ext(path)
   lines <- if (tolower(file_extension) %in% c('yaml', 'yml')) {
     readLines(path)
   } else if (tolower(file_extension) == 'ryaml') {
     tmp_file <- tempfile()
     on.exit(unlink(tmp_file))
-    render_ryaml(path, tmp_file, ...)
+    render_ryaml(path, tmp_file, quiet = quiet, ...)
     readLines(tmp_file)
   } else  {
     stop('Unknown file extension: ', file_extension, path)

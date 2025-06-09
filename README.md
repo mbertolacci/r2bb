@@ -1,3 +1,7 @@
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/mbertolacci/r2bb/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mbertolacci/r2bb/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
+
 # r2bb
 
 Construct Blackboard LMS tests, question pools, and individual questions with R.

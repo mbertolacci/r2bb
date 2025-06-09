@@ -4,12 +4,14 @@
 \alias{read_ryaml}
 \title{Read a Ryaml or YAML file}
 \usage{
-read_ryaml(path, allow_multiple = FALSE, ...)
+read_ryaml(path, allow_multiple = FALSE, quiet = TRUE, ...)
 }
 \arguments{
 \item{path}{The path to the Ryaml file}
 
 \item{allow_multiple}{Whether to allow multiple questions in the file}
+
+\item{quiet}{Whether to suppress output from \code{\link{render_ryaml}}}
 
 \item{...}{Additional arguments to pass to \code{\link{render_ryaml}}}
 }
