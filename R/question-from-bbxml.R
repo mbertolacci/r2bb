@@ -165,7 +165,35 @@ from_bbxml_question <- function(x, convert_html_to_markdown = TRUE) {
 }
 
 .from_bbxml_question_node_single_blank <- function(x, output, convert_rich_text) {
-  stop('Not implemented')
+  output$answers <- list()
+
+  answer_respcondition <- x |>
+    xml2::xml_find_all('.//resprocessing/respcondition[@title!="incorrect"]')
+  for (xx in answer_respcondition) {
+    xx_varequals <- xml2::xml_find_all(xx, './/conditionvar/varequal')
+    xx_setvar <- xml2::xml_find_all(xx, './/setvar')
+
+    xx_case_sensitive <- xml2::xml_attr(xx_varequals, 'case') == 'Yes'
+    xx_text <- xml2::xml_text(xx_varequals)
+    xx_type <- xml2::xml_text(xx_setvar)
+
+    xx_answer <- list(
+      text = xx_text,
+      case_sensitive = xx_case_sensitive,
+      type = if (tolower(xx_type) == 'exact') {
+        'exact'
+      } else if (tolower(xx_type) == 'contains') {
+        'contains'
+      } else if (tolower(xx_type) == 'matches') {
+        'pattern'
+      } else {
+        stop('Unknown setmatch type: ', xx_type)
+      }
+    )
+    output$answers <- c(output$answers, list(xx_answer))
+  }
+
+  output
 }
 
 .from_bbxml_question_node_multiple_blanks <- function(x, output, convert_rich_text) {
