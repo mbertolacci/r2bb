@@ -173,12 +173,24 @@
 <span><span class="fu"><a href="reference/to_bbxml_package.html">to_bbxml_package</a></span><span class="op">(</span><span class="va">pool</span>, <span class="st">"stats-pool.zip"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Create a test with the pool</span></span>
-<span><span class="va">test</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span><span class="va">test</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/normalize_test.html">normalize_test</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  title <span class="op">=</span> <span class="st">"Midterm Exam"</span>,</span>
-<span>  pools <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">pool</span><span class="op">)</span>,</span>
-<span>  questions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="reference/read_question.html">read_question</a></span><span class="op">(</span><span class="st">"bonus-question.yaml"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">test</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"r2bb_test"</span></span>
+<span>  description <span class="op">=</span> <span class="st">"A short midterm exam."</span>,</span>
+<span>  instructions <span class="op">=</span> <span class="st">"Answer all questions."</span>,</span>
+<span>  contents <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>      type <span class="op">=</span> <span class="st">"random_block"</span>,</span>
+<span>      pool <span class="op">=</span> <span class="va">pool</span>,</span>
+<span>      questions_to_display <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>      points_per_question <span class="op">=</span> <span class="fl">4</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>      type <span class="op">=</span> <span class="st">"question"</span>,</span>
+<span>      points <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>      question <span class="op">=</span> <span class="fu"><a href="reference/read_question.html">read_question</a></span><span class="op">(</span><span class="st">"bonus-question.yaml"</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Export test</span></span>
 <span><span class="fu"><a href="reference/to_bbxml_package.html">to_bbxml_package</a></span><span class="op">(</span><span class="va">test</span>, <span class="st">"midterm-exam.zip"</span><span class="op">)</span></span></code></pre></div>
