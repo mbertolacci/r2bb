@@ -116,12 +116,24 @@ class(pool) <- "r2bb_pool"
 to_bbxml_package(pool, "stats-pool.zip")
 
 # Create a test with the pool
-test <- list(
+test <- normalize_test(list(
   title = "Midterm Exam",
-  pools = list(pool),
-  questions = list(read_question("bonus-question.yaml"))
-)
-class(test) <- "r2bb_test"
+  description = "A short midterm exam.",
+  instructions = "Answer all questions.",
+  contents = list(
+    list(
+      type = "random_block",
+      pool = pool,
+      questions_to_display = 1,
+      points_per_question = 4
+    ),
+    list(
+      type = "question",
+      points = 1,
+      question = read_question("bonus-question.yaml")
+    )
+  )
+))
 
 # Export test
 to_bbxml_package(test, "midterm-exam.zip")
