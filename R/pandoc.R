@@ -88,12 +88,14 @@ html_to_md_pandoc <- function(x) {
 }
 
 .md_to_html_pandoc_direct <- function(x, ...) {
-  if (is.null(x) || all(x == '')) {
+  empty_strings <- x == ''
+  if (all(empty_strings)) {
     return(rep('', length(x)))
   }
 
+  x_non_empty <- x[!empty_strings]
   separator <- as.character(runif(1))
-  x_concat <- paste(x, collapse = sprintf('\n\n%s\n\n', separator))
+  x_concat <- paste(x_non_empty, collapse = sprintf('\n\n%s\n\n', separator))
   input_file <- tempfile()
   output_file <- tempfile()
   on.exit(unlink(c(input_file, output_file)))
@@ -106,7 +108,11 @@ html_to_md_pandoc <- function(x) {
     ...
   )
   output_concat <- paste(readLines(output_file), collapse = '\n')
-  strsplit(output_concat, sprintf("\n<p>%s</p>\n", separator))[[1]]
+  non_empty_output <- strsplit(output_concat, sprintf("\n<p>%s</p>\n", separator))[[1]]
+
+  output <- rep('', length(x))
+  output[!empty_strings] <- non_empty_output
+  output
 }
 
 .md_to_html_pandoc_deferred <- function(x, ...) {
