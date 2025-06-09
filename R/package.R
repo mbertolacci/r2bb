@@ -148,6 +148,10 @@ to_bbxml_package <- function(
 #' @param convert_html_to_markdown Whether to convert HTML to Markdown.
 #' @return An R2BB object
 from_bbxml_package <- function(path, convert_html_to_markdown = TRUE) {
+  if (!file.exists(path)) {
+    stop('File does not exist: ', path)
+  }
+  
   output_dir <- tempfile()
   unzip(path, exdir = output_dir)
   on.exit(unlink(output_dir, recursive = TRUE))

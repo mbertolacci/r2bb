@@ -542,3 +542,160 @@ test_that("pool functions pass additional arguments", {
   expect_no_error(to_markdown(pool, some_extra_arg = "value"))
   expect_no_error(capture.output(print(pool, some_extra_arg = "value")))
 })
+
+test_that("from_bbxml_pool round-trip preserves basic structure", {
+  # Create a simple pool
+  original_pool <- normalize_pool(list(
+    title = "Round Trip Pool",
+    description = "Test pool for **round-trip** testing",
+    instructions = "Follow the *instructions*",
+    questions = list(
+      list(
+        title = "Question 1",
+        question_type = "multiple_choice",
+        question_text = "What is 2 + 2?",
+        answers = list(
+          list(text = "4", correct = TRUE),
+          list(text = "3", correct = FALSE),
+          list(text = "5", correct = FALSE)
+        )
+      ),
+      list(
+        title = "Question 2",
+        question_type = "short_answer",
+        question_text = "Explain something"
+      )
+    )
+  ))
+  
+  # Export to XML
+  xml_string <- to_bbxml(original_pool, convert_rich_text = FALSE)
+  
+  # Parse XML and import back
+  xml_doc <- xml2::read_xml(xml_string)
+  imported_pool <- from_bbxml_pool(xml_doc, convert_html_to_markdown = FALSE)
+  
+  # Check basic structure preservation
+  expect_s3_class(imported_pool, "r2bb_pool")
+  expect_equal(imported_pool$title, original_pool$title)
+  expect_equal(imported_pool$type, "pool")
+  expect_length(imported_pool$questions, 2)
+  
+  # Check questions are imported
+  for (i in seq_along(imported_pool$questions)) {
+    expect_s3_class(imported_pool$questions[[i]], "r2bb_question")
+    expect_equal(imported_pool$questions[[i]]$title, original_pool$questions[[i]]$title)
+  }
+})
+
+test_that("from_bbxml_pool handles convert_html_to_markdown parameter", {
+  # Create a pool with markdown content
+  original_pool <- normalize_pool(list(
+    title = "Markdown Pool",
+    description = "Pool with **bold** text",
+    instructions = "Instructions with *italic* text",
+    questions = list(
+      list(
+        title = "Markdown Question",
+        question_type = "short_answer",
+        question_text = "Question with **bold** text"
+      )
+    )
+  ))
+  
+  # Export to XML (which converts markdown to HTML)
+  xml_string <- to_bbxml(original_pool)
+  xml_doc <- xml2::read_xml(xml_string)
+  
+  # Import with HTML to markdown conversion
+  imported_with_conversion <- from_bbxml_pool(xml_doc, convert_html_to_markdown = TRUE)
+  
+  # Import without HTML to markdown conversion
+  imported_without_conversion <- from_bbxml_pool(xml_doc, convert_html_to_markdown = FALSE)
+  
+  # Both should succeed and have correct structure
+  expect_s3_class(imported_with_conversion, "r2bb_pool")
+  expect_s3_class(imported_without_conversion, "r2bb_pool")
+  expect_equal(imported_with_conversion$title, original_pool$title)
+  expect_equal(imported_without_conversion$title, original_pool$title)
+})
+
+test_that("from_bbxml_pool validates input type", {
+  # Test with invalid input
+  expect_error(from_bbxml_pool("not_xml"), "x must be an xml2 node or document")
+  expect_error(from_bbxml_pool(123), "x must be an xml2 node or document")
+})
+
+test_that("from_bbxml_pool handles different question types", {
+  # Create a pool with multiple question types
+  original_pool <- normalize_pool(list(
+    title = "Multi-Type Pool",
+    description = "Pool with various question types",
+    questions = list(
+      list(
+        title = "MC Question",
+        question_type = "multiple_choice",
+        question_text = "Choose one",
+        answers = list(
+          list(text = "A", correct = TRUE),
+          list(text = "B", correct = FALSE)
+        )
+      ),
+      list(
+        title = "Numeric Question",
+        question_type = "numeric",
+        question_text = "What is pi?",
+        tolerance = 0.01,
+        answers = list(3.14159)
+      ),
+      list(
+        title = "Short Answer Question",
+        question_type = "short_answer",
+        question_text = "Explain something"
+      )
+    )
+  ))
+  
+  # Round-trip test
+  xml_string <- to_bbxml(original_pool, convert_rich_text = FALSE)
+  xml_doc <- xml2::read_xml(xml_string)
+  imported_pool <- from_bbxml_pool(xml_doc, convert_html_to_markdown = FALSE)
+  
+  # Check that all questions are preserved (question types may be in Blackboard format)
+  expect_length(imported_pool$questions, 3)
+  expect_type(imported_pool$questions[[1]]$question_type, "character")
+  expect_type(imported_pool$questions[[2]]$question_type, "character") 
+  expect_type(imported_pool$questions[[3]]$question_type, "character")
+  
+  # Question types should not be empty
+  expect_true(nchar(imported_pool$questions[[1]]$question_type) > 0)
+  expect_true(nchar(imported_pool$questions[[2]]$question_type) > 0)
+  expect_true(nchar(imported_pool$questions[[3]]$question_type) > 0)
+})
+
+test_that("from_bbxml_pool preserves essential pool metadata", {
+  # Create a pool with specific metadata
+  original_pool <- normalize_pool(list(
+    title = "Metadata Pool",
+    description = "Pool description for testing",
+    instructions = "Special instructions here",
+    questions = list(
+      list(
+        title = "Test Question",
+        question_type = "short_answer",
+        question_text = "Simple test question"
+      )
+    )
+  ))
+  
+  # Round-trip test
+  xml_string <- to_bbxml(original_pool, convert_rich_text = FALSE)
+  xml_doc <- xml2::read_xml(xml_string)
+  imported_pool <- from_bbxml_pool(xml_doc, convert_html_to_markdown = FALSE)
+  
+  # Check metadata preservation
+  expect_equal(imported_pool$title, original_pool$title)
+  expect_equal(imported_pool$type, "pool")
+  expect_type(imported_pool$description, "character")
+  expect_type(imported_pool$instructions, "character")
+})

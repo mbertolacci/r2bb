@@ -640,3 +640,313 @@ test_that("test functions pass additional arguments", {
   expect_no_error(to_bbxml(test, some_extra_arg = "value"))
 })
 
+test_that("from_bbxml_test round-trip preserves basic structure", {
+  # Create a simple test with questions only
+  original_test <- normalize_test(list(
+    title = "Round Trip Test",
+    description = "Test for **round-trip** testing",
+    instructions = "Follow the *instructions*",
+    contents = list(
+      list(
+        type = "question",
+        points = 2,
+        question = list(
+          title = "Question 1",
+          question_type = "multiple_choice",
+          question_text = "What is 2 + 2?",
+          answers = list(
+            list(text = "4", correct = TRUE),
+            list(text = "3", correct = FALSE)
+          )
+        )
+      ),
+      list(
+        type = "question",
+        points = 5,
+        question = list(
+          title = "Question 2",
+          question_type = "short_answer",
+          question_text = "Explain something"
+        )
+      )
+    )
+  ))
+  
+  # Export to XML
+  xml_string <- to_bbxml(original_test, convert_rich_text = FALSE)
+  
+  # Parse XML and import back
+  xml_doc <- xml2::read_xml(xml_string)
+  imported_test <- from_bbxml_test(xml_doc, convert_html_to_markdown = FALSE)
+  
+  # Check basic structure preservation
+  expect_s3_class(imported_test, "r2bb_test")
+  expect_equal(imported_test$title, original_test$title)
+  expect_equal(imported_test$type, "test")
+  expect_length(imported_test$contents, 2)
+  
+  # Check contents are imported correctly
+  for (i in seq_along(imported_test$contents)) {
+    expect_equal(imported_test$contents[[i]]$type, "question")
+    expect_s3_class(imported_test$contents[[i]]$question, "r2bb_question")
+    expect_equal(imported_test$contents[[i]]$question$title, original_test$contents[[i]]$question$title)
+  }
+})
+
+test_that("from_bbxml_test handles convert_html_to_markdown parameter", {
+  # Create a test with markdown content
+  original_test <- normalize_test(list(
+    title = "Markdown Test",
+    description = "Test with **bold** text",
+    instructions = "Instructions with *italic* text",
+    contents = list(
+      list(
+        type = "question",
+        points = 1,
+        question = list(
+          title = "Markdown Question",
+          question_type = "short_answer",
+          question_text = "Question with **bold** text"
+        )
+      )
+    )
+  ))
+  
+  # Export to XML (which converts markdown to HTML)
+  xml_string <- to_bbxml(original_test)
+  xml_doc <- xml2::read_xml(xml_string)
+  
+  # Import with HTML to markdown conversion
+  imported_with_conversion <- from_bbxml_test(xml_doc, convert_html_to_markdown = TRUE)
+  
+  # Import without HTML to markdown conversion
+  imported_without_conversion <- from_bbxml_test(xml_doc, convert_html_to_markdown = FALSE)
+  
+  # Both should succeed and have correct structure
+  expect_s3_class(imported_with_conversion, "r2bb_test")
+  expect_s3_class(imported_without_conversion, "r2bb_test")
+  expect_equal(imported_with_conversion$title, original_test$title)
+  expect_equal(imported_without_conversion$title, original_test$title)
+})
+
+test_that("from_bbxml_test validates input type", {
+  # Test with invalid input
+  expect_error(from_bbxml_test("not_xml"), "inherits.*xml_document.*xml_node")
+  expect_error(from_bbxml_test(123), "inherits.*xml_document.*xml_node")
+})
+
+test_that("from_bbxml_test handles random_block content with pools", {
+  # Create a pool for the random block
+  pool <- normalize_pool(list(
+    title = "Test Pool",
+    description = "Pool for testing",
+    questions = list(
+      list(
+        title = "Pool Question",
+        question_type = "short_answer",
+        question_text = "Pool question"
+      )
+    )
+  ))
+  
+  # Create a test with random block
+  original_test <- normalize_test(list(
+    title = "Random Block Test",
+    description = "Test with random block",
+    contents = list(
+      list(
+        type = "random_block",
+        pool = pool,
+        questions_to_display = 1,
+        points_per_question = 3
+      )
+    )
+  ))
+  
+  # Export to XML
+  xml_string <- to_bbxml(original_test, convert_rich_text = FALSE)
+  xml_doc <- xml2::read_xml(xml_string)
+  
+  # Create pools_by_name for the import
+  pools_by_name <- list("res00001" = pool)
+  
+  # Import back
+  imported_test <- from_bbxml_test(xml_doc, convert_html_to_markdown = FALSE, pools_by_name)
+  
+  # Check structure
+  expect_s3_class(imported_test, "r2bb_test")
+  expect_equal(imported_test$title, original_test$title)
+  expect_length(imported_test$contents, 1)
+  expect_equal(imported_test$contents[[1]]$type, "random_block")
+  expect_s3_class(imported_test$contents[[1]]$pool, "r2bb_pool")
+})
+
+test_that("from_bbxml_test handles missing pools parameter", {
+  # Create a test with random block
+  pool <- normalize_pool(list(
+    title = "Missing Pool",
+    description = "Pool for testing",
+    questions = list(
+      list(
+        title = "Pool Question",
+        question_type = "short_answer",
+        question_text = "Pool question"
+      )
+    )
+  ))
+  
+  original_test <- normalize_test(list(
+    title = "Missing Pool Test",
+    description = "Test with missing pool reference",
+    contents = list(
+      list(
+        type = "random_block",
+        pool = pool,
+        questions_to_display = 1,
+        points_per_question = 2
+      )
+    )
+  ))
+  
+  # Export to XML
+  xml_string <- to_bbxml(original_test, convert_rich_text = FALSE)
+  xml_doc <- xml2::read_xml(xml_string)
+  
+  # Import without pools_by_name (should use resource name as string)
+  imported_test <- from_bbxml_test(xml_doc, convert_html_to_markdown = FALSE)
+  
+  # Check structure - pool should be the resource name string
+  expect_s3_class(imported_test, "r2bb_test")
+  expect_equal(imported_test$contents[[1]]$type, "random_block")
+  expect_type(imported_test$contents[[1]]$pool, "character")
+})
+
+test_that("from_bbxml_test preserves scoring information", {
+  # Create a test with specific scoring
+  original_test <- normalize_test(list(
+    title = "Scoring Test",
+    description = "Test scoring preservation",
+    contents = list(
+      list(
+        type = "question",
+        points = 3,
+        question = list(
+          title = "Question 1",
+          question_type = "short_answer",
+          question_text = "First question",
+          max_score = 3
+        )
+      ),
+      list(
+        type = "question",
+        points = 5,
+        question = list(
+          title = "Question 2",
+          question_type = "multiple_choice",
+          question_text = "Second question",
+          max_score = 5,
+          answers = list(
+            list(text = "A", correct = TRUE),
+            list(text = "B", correct = FALSE)
+          )
+        )
+      )
+    )
+  ))
+  
+  # Round-trip test
+  xml_string <- to_bbxml(original_test, convert_rich_text = FALSE)
+  xml_doc <- xml2::read_xml(xml_string)
+  imported_test <- from_bbxml_test(xml_doc, convert_html_to_markdown = FALSE)
+  
+  # Check scoring is preserved
+  expect_equal(imported_test$contents[[1]]$points, 3)
+  expect_equal(imported_test$contents[[2]]$points, 5)
+  expect_equal(imported_test$contents[[1]]$question$max_score, 3)
+  expect_equal(imported_test$contents[[2]]$question$max_score, 5)
+})
+
+test_that("from_bbxml_test handles mixed content types", {
+  # Create a pool for mixed content
+  pool <- normalize_pool(list(
+    title = "Mixed Pool",
+    description = "Pool for mixed test",
+    questions = list(
+      list(
+        title = "Pool Question",
+        question_type = "short_answer",
+        question_text = "From pool"
+      )
+    )
+  ))
+  
+  # Create a test with both question and random_block
+  original_test <- normalize_test(list(
+    title = "Mixed Content Test",
+    description = "Test with mixed content",
+    contents = list(
+      list(
+        type = "question",
+        points = 2,
+        question = list(
+          title = "Direct Question",
+          question_type = "short_answer",
+          question_text = "Direct question"
+        )
+      ),
+      list(
+        type = "random_block",
+        pool = pool,
+        questions_to_display = 1,
+        points_per_question = 3
+      )
+    )
+  ))
+  
+  # Round-trip test
+  xml_string <- to_bbxml(original_test, convert_rich_text = FALSE)
+  xml_doc <- xml2::read_xml(xml_string)
+  
+  # Create pools for the random block
+  pools_by_name <- list("res00001" = pool)
+  imported_test <- from_bbxml_test(xml_doc, convert_html_to_markdown = FALSE, pools_by_name)
+  
+  # Check mixed content is handled correctly
+  expect_length(imported_test$contents, 2)
+  expect_equal(imported_test$contents[[1]]$type, "question")
+  expect_equal(imported_test$contents[[2]]$type, "random_block")
+  expect_s3_class(imported_test$contents[[1]]$question, "r2bb_question")
+  expect_s3_class(imported_test$contents[[2]]$pool, "r2bb_pool")
+})
+
+test_that("from_bbxml_test preserves essential test metadata", {
+  # Create a test with specific metadata
+  original_test <- normalize_test(list(
+    title = "Metadata Test",
+    description = "Test description for testing",
+    instructions = "Special instructions here",
+    contents = list(
+      list(
+        type = "question",
+        points = 1,
+        question = list(
+          title = "Test Question",
+          question_type = "short_answer",
+          question_text = "Simple test question"
+        )
+      )
+    )
+  ))
+  
+  # Round-trip test
+  xml_string <- to_bbxml(original_test, convert_rich_text = FALSE)
+  xml_doc <- xml2::read_xml(xml_string)
+  imported_test <- from_bbxml_test(xml_doc, convert_html_to_markdown = FALSE)
+  
+  # Check metadata preservation
+  expect_equal(imported_test$title, original_test$title)
+  expect_equal(imported_test$type, "test")
+  expect_type(imported_test$description, "character")
+  expect_type(imported_test$instructions, "character")
+})
+
