@@ -49,6 +49,7 @@
 <span>  embed_images <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  clean_intermediates <span class="op">=</span> <span class="va">embed_images</span>,</span>
 <span>  envir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sys.parent.html" class="external-link">parent.frame</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  validate <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -79,13 +80,19 @@ created by knitr</p></dd>
 <dd><p>The environment to use for evaluating R code</p></dd>
 
 
+<dt id="arg-validate">validate<a class="anchor" aria-label="anchor" href="#arg-validate"></a></dt>
+<dd><p>Whether to validate the output YAML file. This is done by
+calling <code><a href="https://rdrr.io/pkg/yaml/man/yaml.load.html" class="external-link">yaml.load</a></code> on the output file; if an error is
+thrown, the function will stop with an error message.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional arguments to pass to <code><a href="https://rdrr.io/pkg/knitr/man/knit.html" class="external-link">knit</a></code></p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The output YAML file</p>
+    <p>The output of <code><a href="https://rdrr.io/pkg/knitr/man/knit.html" class="external-link">knit</a></code></p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

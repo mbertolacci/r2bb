@@ -101,43 +101,100 @@ the next key is preserved exactly as written.</p>
 you run <code><a href="../reference/render_ryaml.html">render_ryaml()</a></code>, those chunks are executed and the
 result is a plain YAML file. That means you can use R code to compute
 values, generate lists, or even print YAML directly.</p>
+<div class="section level3">
+<h3 id="example-1-inline-computed-values">Example 1: Inline computed values<a class="anchor" aria-label="anchor" href="#example-1-inline-computed-values"></a>
+</h3>
+<p>Here is an example of outputting a computed value to fill in a field
+in the YAML file:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">answers</span><span class="kw">:</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> a</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> b</span></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> c</span></span></code></pre></div>
-<p>Another common pattern is to compute a value inline:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">correct</span><span class="kw">:</span><span class="at"> </span><span class="ch">TRUE</span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="fu">question_text</span><span class="kw">: </span><span class="ch">|</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  The t-test result is:</span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  </span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>  ```</span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>  #&gt; </span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>  #&gt;    One Sample t-test</span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>  #&gt; </span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>  #&gt; data:  mtcars$mpg</span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>  #&gt; t = 18.857, df = 31, p-value &lt; 2.2e-16</span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>  #&gt; alternative hypothesis: true mean is not equal to 0</span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>  #&gt; 95 percent confidence interval:</span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>  #&gt;  17.91768 22.26357</span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>  #&gt; sample estimates:</span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>  #&gt; mean of x </span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a>  #&gt;  20.09062</span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>  ```</span></code></pre></div>
-<p>Because the final output is YAML text, you can feed the result into
-any function that expects YAML.</p>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">animal</span><span class="kw">:</span><span class="at"> dog</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">how_good_are_dogs</span><span class="kw">:</span><span class="at"> great!</span></span></code></pre></div>
+<p>When rendered to YAML, the output is:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">animal</span><span class="kw">:</span><span class="at"> dog</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">how_good_are_dogs</span><span class="kw">:</span><span class="at"> great!</span></span></code></pre></div>
+<p>You can render this to a YAML file using
+<code>render_ryaml("dogs.Ryaml", "dogs.yaml")</code>. Alternatively, you
+can call <code>read_ryaml</code> to read the YAML file into an R
+object:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/read_ryaml.html">read_ryaml</a></span><span class="op">(</span><span class="st">"dogs.Ryaml"</span><span class="op">)</span></span></code></pre></div>
+<p>The output is a list with two elements:</p>
+<pre><code><span><span class="co">#&gt; $animal</span></span>
+<span><span class="co">#&gt; [1] "dog"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $how_good_are_dogs</span></span>
+<span><span class="co">#&gt; [1] "great!"</span></span></code></pre>
+</div>
+<div class="section level3">
+<h3 id="example-2-computed-yaml">Example 2: Computed YAML<a class="anchor" aria-label="anchor" href="#example-2-computed-yaml"></a>
+</h3>
+<p>Another way to generate YAML is to use the <code>yaml_print</code>
+function to convert the output of a code block directly to YAML. Here is
+a simple example:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">animal_names</span><span class="kw">:</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> dog</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> cat</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> bird</span></span></code></pre></div>
+<p>The rendered YAML is:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">animal_names</span><span class="kw">:</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> dog</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> cat</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> bird</span></span></code></pre></div>
+<p>We can call <code>read_ryaml</code> to read the YAML file into an R
+object:</p>
+<pre><code><span><span class="co">#&gt; $animal_names</span></span>
+<span><span class="co">#&gt; [1] "dog"  "cat"  "bird"</span></span></code></pre>
+<p>This also works with more complex nested objects:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="fu">animal_info</span><span class="kw">:</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="at">  </span><span class="fu">dog</span><span class="kw">:</span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="at">    </span><span class="fu">name</span><span class="kw">:</span><span class="at"> dog</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="at">    </span><span class="fu">color</span><span class="kw">:</span><span class="at"> brown</span></span></code></pre></div>
+<p>The rendered YAML is:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">animal_info</span><span class="kw">:</span></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="at">  </span><span class="fu">dog</span><span class="kw">:</span></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="at">    </span><span class="fu">name</span><span class="kw">:</span><span class="at"> dog</span></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="at">    </span><span class="fu">color</span><span class="kw">:</span><span class="at"> brown</span></span></code></pre></div>
+<div class="section level4">
+<h4 id="example-3-markdown-inside-yaml">Example 3: Markdown inside YAML<a class="anchor" aria-label="anchor" href="#example-3-markdown-inside-yaml"></a>
+</h4>
+<p>YAML text fields can contain Markdown. This lets you use RMarkdown to
+include code and its results. Here is an example:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">question_text</span><span class="kw">: </span><span class="ch">|</span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  Suppose the following code is run with the following output:</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>  </span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>  ``` r</span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>  mean(1 : 10)</span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>  #&gt; [1] 5.5</span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a>  ```</span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a>  What does this code do?</span></code></pre></div>
+<p>The rendered YAML is:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">question_text</span><span class="kw">: </span><span class="ch">|</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>  Suppose the following code is run with the following output:</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>  </span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>  ``` r</span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a>  mean(1 : 10)</span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a>  ```</span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a>  </span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a>  ```</span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a>  ## [1] 5.5</span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a>  ```</span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a></span>
+<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a>  What does this code do?</span></code></pre></div>
+</div>
+</div>
 </div>
 <div class="section level2">
-<h2 id="why-so-flexible">Why so flexible?<a class="anchor" aria-label="anchor" href="#why-so-flexible"></a>
+<h2 id="embedded-plots">Embedded plots<a class="anchor" aria-label="anchor" href="#embedded-plots"></a>
 </h2>
-<p>Since RYaml ultimately renders to plain text, there are many ways you
-can use it. You might generate multiple questions in a loop, pull data
-from packages, or include figures encoded in base64. Everything that
-works in rmarkdown works here as well, just targeted at producing
-YAML.</p>
+<p>By default RYaml will embed plots in the YAML file as base64-encoded
+images. This is useful if you want to include plots in your question.
+This seems to “just work” with Blackboard LMS, but your mileage may
+vary.</p>
 </div>
 <div class="section level2">
 <h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
