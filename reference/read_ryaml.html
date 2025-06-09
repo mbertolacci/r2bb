@@ -52,7 +52,7 @@ documents from a single file.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">read_ryaml</span><span class="op">(</span><span class="va">path</span>, allow_multiple <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">read_ryaml</span><span class="op">(</span><span class="va">path</span>, allow_multiple <span class="op">=</span> <span class="cn">FALSE</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -65,6 +65,10 @@ documents from a single file.</p>
 
 <dt id="arg-allow-multiple">allow_multiple<a class="anchor" aria-label="anchor" href="#arg-allow-multiple"></a></dt>
 <dd><p>Whether to allow multiple questions in the file</p></dd>
+
+
+<dt id="arg-quiet">quiet<a class="anchor" aria-label="anchor" href="#arg-quiet"></a></dt>
+<dd><p>Whether to suppress output from <code><a href="render_ryaml.html">render_ryaml</a></code></p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
