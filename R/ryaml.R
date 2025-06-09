@@ -16,8 +16,11 @@
 #' @param clean_intermediates Whether to clean the intermediate files
 #' created by knitr
 #' @param envir The environment to use for evaluating R code
+#' @param validate Whether to validate the output YAML file. This is done by
+#' calling \code{\link[yaml]{yaml.load}} on the output file; if an error is
+#' thrown, the function will stop with an error message.
 #' @param ... Additional arguments to pass to \code{\link[knitr]{knit}}
-#' @return The output YAML file
+#' @return The output of \code{\link[knitr]{knit}}
 #' @export
 render_ryaml <- function(
   from,
@@ -25,6 +28,7 @@ render_ryaml <- function(
   embed_images = TRUE,
   clean_intermediates = embed_images,
   envir = parent.frame(),
+  validate = TRUE,
   ...
 ) {
   if (missing(to)) {
@@ -75,7 +79,45 @@ render_ryaml <- function(
     }
   }
 
+  if (validate) {
+    tryCatch({
+      yaml::yaml.load(to)
+    }, error = function(e) {
+      stop('Error reading YAML file: ', e)
+    })
+  }
+
   output
+}
+
+#' Read a Ryaml or YAML file
+#'
+#' This function reads an Ryaml or YAML file into an R object. This is almost the
+#' same as calling \code{\link{render_ryaml}} and then \code{\link{yaml.load}}
+#' on the output file, except that it also supports reading multiple YAML
+#' documents from a single file.
+#'
+#' @param path The path to the Ryaml file
+#' @param allow_multiple Whether to allow multiple questions in the file
+#' @param ... Additional arguments to pass to \code{\link{render_ryaml}}
+#' @return If `allow_multiple` is `FALSE`, the return value is a single R
+#' object. If `allow_multiple` is `TRUE`, the return value is a list of R
+#' objects.
+#' @export
+read_ryaml <- function(path, allow_multiple = FALSE, ...) {
+  file_extension <- tools::file_ext(path)
+  lines <- if (tolower(file_extension) %in% c('yaml', 'yml')) {
+    readLines(path)
+  } else if (tolower(file_extension) == 'ryaml') {
+    tmp_file <- tempfile()
+    on.exit(unlink(tmp_file))
+    render_ryaml(path, tmp_file, ...)
+    readLines(tmp_file)
+  } else  {
+    stop('Unknown file extension: ', file_extension, path)
+  }
+
+  .load_yaml_lines(lines, allow_multiple = allow_multiple)
 }
 
 #' Print an object in YAML format
@@ -90,3 +132,20 @@ yaml_print <- function(x, ...) {
   cat(yaml::as.yaml(x))
 }
 
+.load_yaml_lines <- function(lines, allow_multiple = FALSE, ...) {
+  boundary_lines <- c(0, which(lines == '---'), length(lines) + 1)
+  n_documents <- length(boundary_lines) - 1
+  output <- lapply(seq_len(n_documents), function(i) {
+    start_line <- boundary_lines[i] + 1L
+    end_line <- boundary_lines[i + 1] - 1L
+    yaml::yaml.load(paste0(lines[start_line : end_line], collapse = '\n'))
+  })
+  if (allow_multiple) {
+    output
+  } else {
+    if (length(output) != 1) {
+      stop('Multiple YAML documents found')
+    }
+    output[[1]]
+  }
+}

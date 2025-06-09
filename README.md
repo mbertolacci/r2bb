@@ -24,21 +24,51 @@ Think of it as a Blackboard-specific version of the [R exams package](https://ww
 - **Bidirectional**: Import existing Blackboard packages back into R
 - **Three creation methods**: Static YAML, dynamic RYaml, or programmatic R code
 
+### Vignettes
+
+See the Quick Start below, or read the following vignettes:
+
+- [Basic Usage Vignette](https://mbertolacci.github.io/r2bb/articles/basic-usage.html) - Comprehensive usage guide
+- [Question Types Vignette](https://mbertolacci.github.io/r2bb/articles/question-types.html) - Examples of all question types
+- [RYaml Vignette](https://mbertolacci.github.io/r2bb/articles/ryaml.html) - Use RYaml for dynamic questions
+- [Example Files](https://github.com/mbertolacci/r2bb/tree/main/inst/examples) - Sample YAML and RYaml files
+
 ## Installation
 
-```r
-# Install from GitHub (development version)
-# devtools::install_github("username/r2bb")  # Update with actual repo
+The package is not on CRAN; you can install it from GitHub as follows:
 
-# Load the package
+```r
+devtools::install_github("mbertolacci/r2bb")
+```
+
+Then load the package as usual:
+
+```r
 library(r2bb)
 ```
 
 ## Quick Start
 
+Below we talk about how to create questions using YAML, RYaml, and R code. These can be combined into question pools, which can be exported to Blackboard.
+
+The following question types are supported:
+
+- **multiple_choice**: Single correct answer from multiple options
+- **multiple_answer**: Multiple correct answers possible  
+- **numeric**: Numerical answer with tolerance
+- **short_answer**: Text-based answer
+- **single_blank**: Fill in one blank
+- **multiple_blanks**: Fill in multiple blanks
+- **matching**: Match items between two lists
+- **file_upload**: File submission
+
+More information on question types is available in the [Question Types Vignette](https://mbertolacci.github.io/r2bb/articles/question-types.html).
+
+You can also create tests, which can draw from questions pool or just contain individual questions directly.
+
 ### Simple YAML Question
 
-Create a basic multiple choice question using YAML:
+Here we create a basic multiple choice question using YAML:
 
 ```yaml
 # france-question.yaml
@@ -58,6 +88,8 @@ answers:
     correct: false
 ```
 
+This can be loaded as follows. If you call `print` on the question, it will be rendered in Markdown:
+
 ```r
 # Load the question and print it in Markdown
 q <- read_question("france-question.yaml")
@@ -66,7 +98,9 @@ print(q)
 
 ### Dynamic RYaml Question
 
-Create questions with embedded R code for computed answers:
+You can also create questions in RYaml format (`.Ryaml`, see the [RYaml Vignette](https://mbertolacci.github.io/r2bb/articles/ryaml.html)) with embedded R code for computed answers. RYaml is a thin wrapper around Rmarkdown that outputs YAML.
+
+The following example creates a multiple choice question with a computed answer:
 
 ````yaml
 # t-test.Ryaml
@@ -89,33 +123,52 @@ answers:
     correct: false
 ````
 
+The RYaml file can be read in directly as follows:
+
 ```r
-# Render RYaml to YAML, then load and print
-render_ryaml("t-test.Ryaml", "t-test.yaml")
-q <- read_question("t-test.yaml")
+q <- read_question("t-test.Ryaml")
 print(q)
 ```
 
+If you want to see what the rendered YAML looks like, you can use the `render_ryaml` function:
+
+```r
+render_ryaml("t-test.Ryaml", "t-test.yaml")
+```
+
+This will create a file `t-test.yaml` that you can read using a text editor.
+
 ### Question Pools and Tests
+
+On Blackboard, a question pool is a collection of questions that can be used in a test. In `r2bb`, you can create a question pool by passing a list of questions to the `pool` function:
 
 ```r
 # Create a question pool
-pool_questions <- list(
-  read_question("question1.yaml"),
-  read_question("question2.yaml"),
-  read_question("question3.yaml")
-)
-
-pool <- list(
+pool <- normalize_pool(list(
   title = "Statistics Questions",
-  questions = pool_questions
-)
-class(pool) <- "r2bb_pool"
+  questions = list(
+    read_question("question1.yaml"),
+    read_question("question2.yaml"),
+    read_question("question3.yaml")
+  )
+))
+```
 
-# Export pool
+To import the question pool into Blackboard, you can use the `to_bbxml_package` function:
+
+```r
 to_bbxml_package(pool, "stats-pool.zip")
+```
 
-# Create a test with the pool
+This will create a file `stats-pool.zip` that you can import into Blackboard.
+
+### Tests
+
+You can also create tests, which can draw from questions pool or just contain individual questions directly.
+
+The following example creates a test with a random block using the pool created above, and a bonus question:
+
+```r
 test <- normalize_test(list(
   title = "Midterm Exam",
   description = "A short midterm exam.",
@@ -134,41 +187,13 @@ test <- normalize_test(list(
     )
   )
 ))
-
-# Export test
-to_bbxml_package(test, "midterm-exam.zip")
 ```
 
-## Supported Question Types
+To export the test to Blackboard, you can use the `to_bbxml_package` function:
 
-- **multiple_choice**: Single correct answer from multiple options
-- **multiple_answer**: Multiple correct answers possible  
-- **numeric**: Numerical answer with tolerance
-- **short_answer**: Text-based answer
-- **single_blank**: Fill in one blank
-- **multiple_blanks**: Fill in multiple blanks
-- **matching**: Match items between two lists
-- **file_upload**: File submission
-
-## Documentation
-
-- [Basic Usage Vignette](https://mbertolacci.github.io/r2bb/articles/basic-usage.html) - Comprehensive usage guide
-- [Question Types Vignette](https://mbertolacci.github.io/r2bb/articles/question-types.html) - Examples of all question types
-- [RYaml Vignette](https://mbertolacci.github.io/r2bb/articles/ryaml.html) - Use RYaml for dynamic questions
-- [Example Files](https://github.com/mbertolacci/r2bb/tree/main/inst/examples) - Sample YAML and RYaml files
-
-## Workflow
-
-1. **Create questions** using YAML files, RYaml files, or R code
-2. **Organize** questions into pools or tests as needed
-3. **Convert** pools or tests to Blackboard format using `to_bbxml_package()`
-4. **Import** the generated ZIP file into Blackboard
-
-## Requirements
-
-- R (>= 3.5.0)
-- Pandoc (for Markdown conversion)
-- Required R packages: yaml, xml2, uuid, stringr, tools, base64enc, knitr, rmarkdown
+```r
+to_bbxml_package(test, "midterm-exam.zip")
+```
 
 ## License
 
