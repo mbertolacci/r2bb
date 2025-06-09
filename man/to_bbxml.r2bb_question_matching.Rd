@@ -84,6 +84,8 @@ A character string containing the Blackboard XML
 }
 \description{
 This function converts a question to Blackboard XML format.
+This is mostly used as part of \code{\link[=to_bbxml_package]{to_bbxml_package()}}, but can be called
+directly if you want the XML for a single question.
 }
 \seealso{
 \code{\link[=to_bbxml]{to_bbxml()}}

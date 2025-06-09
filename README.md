@@ -199,6 +199,18 @@ To export the test to Blackboard, you can use the `to_bbxml_package` function:
 to_bbxml_package(test, "midterm-exam.zip")
 ```
 
+## Importing pools and tests from Blackboard
+
+You can import pools and tests from Blackboard by passing the path to the ZIP file to the `from_bbxml_package` function. Here is an example of importing a pool:
+
+```r
+pool <- from_bbxml_package("stats-pool.zip")
+```
+
+The same method works for tests as well. This function by default attempts to convert the HTML in the questions to Markdown using Pandoc. You can disable this by setting `convert_html_to_markdown = FALSE`.
+
+Please note that this functionality (importing from Blackboard) is the most experimental and unreliable part of this package. It has worked okay for me (the package maintainer) once or twice, but I would double-check very carefully its output.
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
