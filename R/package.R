@@ -82,7 +82,7 @@ to_bbxml_package <- function(
   resource_index <- 1L
   resources <- lapply(x, function(pool) {
     name <- sprintf('res%05d', resource_index)
-    resource_index <- resource_index + 1L
+    resource_index <<- resource_index + 1L
     list(
       file = sprintf('%s.dat', name),
       title = pool$title,
